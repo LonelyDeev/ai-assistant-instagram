@@ -35,8 +35,7 @@ class GenerateContentCommand extends Command
     public function handle()
     {
         Artisan::call('queue:work --queue=generate_content --stop-when-empty');
-
-      /*  $contents = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->get();
+        $contents = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->get();
 
         foreach ($contents as $content) {
             $statusUrl = "https://queue.fal.run/fal-ai/flux-pro/requests/" . $content->image_request_id . "/status";
@@ -107,7 +106,7 @@ class GenerateContentCommand extends Command
                     $content->save();
                 }
             }
-        }*/
+        }
 
     }
 
