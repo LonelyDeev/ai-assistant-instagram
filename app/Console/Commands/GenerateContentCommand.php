@@ -36,7 +36,7 @@ class GenerateContentCommand extends Command
     {
         Artisan::call('queue:work --queue=generate_content --stop-when-empty');
 
-        $contents = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->get();
+      /*  $contents = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->get();
 
         foreach ($contents as $content) {
             $statusUrl = "https://queue.fal.run/fal-ai/flux-pro/requests/" . $content->image_request_id . "/status";
@@ -46,7 +46,7 @@ class GenerateContentCommand extends Command
             $response = Http::withHeaders([
                 'Authorization' => 'Key ' . $this->falAiApi,
                 'Content-Type' => 'application/json',
-            ])->get($statusUrl);
+            ])->timeout(200)->get($statusUrl);
             if (isset($response->json()['detail'])) {
 
                 $content->messages .= ' ' . $response->json()['detail'];
@@ -62,7 +62,7 @@ class GenerateContentCommand extends Command
                 $imageResponse = Http::withHeaders([
                     'Authorization' => 'Key ' . $this->falAiApi,
                     'Content-Type' => 'application/json',
-                ])->get($detailsUrl);
+                ])->timeout(200)->get($detailsUrl);
 
                 if ($imageResponse->failed()) {
                     $content->messages .= ' ' . $imageResponse->json()['message'];
@@ -107,7 +107,7 @@ class GenerateContentCommand extends Command
                     $content->save();
                 }
             }
-        }
+        }*/
 
     }
 
