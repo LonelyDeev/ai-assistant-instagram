@@ -77,22 +77,45 @@ class GenerateContent implements ShouldQueue
                 ],
                 'max_tokens' => 1000,
             ]);
-            Log::info($response->json());
-            die();
-            $postContent = $response->json()['choices'][0]['message']['content'];
 
+            $responseData = $response->json();
+
+            // بررسی وجود خطا در پاسخ
+            if (isset($responseData['error'])) {
+                $errorMessage = $responseData['error']['message'];
+                $errorCode = $responseData['error']['code'];
+
+                // ذخیره خطا در جدول
+                $content->messages = $content->messages . ' ' . $errorMessage;
+                $content->status = "error";
+                $content->save();
+
+                // اگر خطا مربوط به API key باشد، پیام مناسب را برگردانید
+                if ($errorCode === 'invalid_api_key') {
+                    $message = trans('messages.invalid_api');
+                } else {
+                    $message = $errorMessage;
+                }
+
+                // لاگ خطا
+                Log::error("API Error: " . $errorMessage);
+
+                // ادامه ندهید و از تابع خارج شوید
+                return;
+            }
+
+            // اگر خطایی وجود نداشت، ادامه دهید
+            $postContent = $responseData['choices'][0]['message']['content'];
 
             $content->content = $postContent;
             $content->count = Str::of($postContent)->wordCount();
             $content->status = "end";
             $content->save();
 
-
             $this->GenerateImage($content, $translatedQuery);
 
-
         } catch (\Throwable $th) {
-
+            // مدیریت سایر خطاها
             if ($th->getMessage() == "title_required") {
                 $message = 'عنوان ضروری است';
             } elseif ($th->getMessage() == "slug_unique") {
@@ -101,8 +124,6 @@ class GenerateContent implements ShouldQueue
                 $message = trans('messages.invalid_api_maximum');
             } elseif ($th->getMessage() == 'Undefined array key "choices"') {
                 $message = trans('messages.error_connections');
-            } elseif ($th->getMessage() == 'Incorrect API key provided: ' . $this->openAiApi . '. You can find your API key at https://platform.openai.com/account/api-keys.') {
-                $message = trans('messages.invalid_api');
             } else {
                 $message = $th->getMessage();
             }
@@ -110,8 +131,10 @@ class GenerateContent implements ShouldQueue
             $content->messages = $content->messages . ' ' . $message;
             $content->status = "error";
             $content->save();
-        }
 
+            // لاگ خطا
+            Log::error("Exception: " . $th->getMessage());
+        }
 
     }
 
