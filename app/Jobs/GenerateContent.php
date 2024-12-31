@@ -77,7 +77,8 @@ class GenerateContent implements ShouldQueue
                 ],
                 'max_tokens' => 1000,
             ]);
-
+            Log::info($response->json());
+            die();
             $postContent = $response->json()['choices'][0]['message']['content'];
 
 
