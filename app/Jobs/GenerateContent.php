@@ -164,8 +164,7 @@ class GenerateContent implements ShouldQueue
                     ],
                     'max_tokens' => 300,
                 ]);
-                Log::error("OpenAI API Error: " . $ImagePromptResponse->json());
-                die();
+           
                 $ImagePromptData = $ImagePromptResponse->json();
 
                 // بررسی خطا در پاسخ OpenAI
