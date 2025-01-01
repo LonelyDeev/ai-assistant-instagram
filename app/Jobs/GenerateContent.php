@@ -155,7 +155,7 @@ class GenerateContent implements ShouldQueue
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'You are an expert in creating image generation prompts for AI. Write a highly detailed prompt for generating an AI-generated image based on the following user description. Ensure it includes artistic style, environment, lighting, camera angle, and colors. Limit to 600 characters.'
+                            'content' => 'You are an expert in creating image generation prompts for AI. Write a highly detailed prompt for generating an AI-generated image based on the following user description. Ensure it includes artistic style, environment, lighting, camera angle, and colors. Limit to 500 characters.'
                         ],
                         [
                             'role' => 'user',
@@ -164,7 +164,8 @@ class GenerateContent implements ShouldQueue
                     ],
                     'max_tokens' => 300,
                 ]);
-
+                Log::error("OpenAI API Error: " . $ImagePromptResponse->json());
+                die();
                 $ImagePromptData = $ImagePromptResponse->json();
 
                 // بررسی خطا در پاسخ OpenAI
