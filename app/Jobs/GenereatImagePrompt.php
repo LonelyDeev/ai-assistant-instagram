@@ -32,10 +32,10 @@ class GenereatImagePrompt implements ShouldQueue
     public function handle(): void
     {
         $contents = Content::where(['generate_image'=> 'yes','images_status'=>'waiting'])->get();
-        Log::info($contents);
+
         foreach ($contents as $content) {
             $prompt = $this->GoogleTranslate($content->title);
-            Log::info('Promt: '.$prompt);
+
             try {
                 // درخواست به OpenAI برای ایجاد prompt تصویر
                 $ImagePromptResponse = Http::withHeaders([
@@ -56,7 +56,7 @@ class GenereatImagePrompt implements ShouldQueue
                 ]);
 
                 $ImagePromptData = $ImagePromptResponse->json();
-                Log::info('genaret Prompt: '.$ImagePromptData);
+
                 // بررسی خطا در پاسخ OpenAI
                 if (isset($ImagePromptData['error'])) {
                     $errorMessage = $ImagePromptData['error']['message'];
