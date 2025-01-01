@@ -150,7 +150,7 @@ class GenerateContent implements ShouldQueue
                 // درخواست به OpenAI برای ایجاد prompt تصویر
                 $ImagePromptResponse = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $this->openAiApi,
-                ])->timeout(200)->post('https://api.openai.com/v1/chat/completions', [
+                ])->timeout(300)->post('https://api.openai.com/v1/chat/completions', [
                     'model' => 'gpt-4-turbo',
                     'messages' => [
                         [
@@ -188,7 +188,7 @@ class GenerateContent implements ShouldQueue
                     Log::error("OpenAI API Error: " . $errorMessage);
 
                     // ادامه ندهید و از تابع خارج شوید
-                    return;
+                    return false;
                 }
 
                 $ImagePrompt = $ImagePromptData['choices'][0]['message']['content'];
@@ -208,7 +208,7 @@ class GenerateContent implements ShouldQueue
                 $response = Http::withHeaders([
                     'Authorization' => 'Key ' . $this->falAiApi,
                     'Content-Type' => 'application/json',
-                ])->timeout(200)->post($url, $body);
+                ])->timeout(120)->post($url, $body);
 
                 $responseData = $response->json();
 
