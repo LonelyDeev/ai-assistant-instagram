@@ -35,7 +35,7 @@ class GenerateContentCommand extends Command
     public function handle()
     {
         Artisan::call('queue:work --queue=generate_content --stop-when-empty');
-        Artisan::call('queue:work --queue=generate_image --stop-when-empty');
+
         $contents = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->get();
 
         foreach ($contents as $content) {
