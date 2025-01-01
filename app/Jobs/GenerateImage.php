@@ -31,13 +31,9 @@ class GenerateImage implements ShouldQueue
 
     public function handle(): void
     {
-        $contents = Content::where('generate_image', 'yes')->where('images_status', 'waiting')->get();
+        $contents = Content::where(['generate_image'=> 'yes','images_status'=>'waiting'])->get();
         foreach ($contents as $content) {
-
-            if (!$prompt) {
-                $prompt = $this->GoogleTranslate($content->title);
-            }
-
+            $prompt = $this->GoogleTranslate($content->title);
             try {
                 // درخواست به OpenAI برای ایجاد prompt تصویر
                 $ImagePromptResponse = Http::withHeaders([
