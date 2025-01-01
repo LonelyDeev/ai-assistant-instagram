@@ -112,7 +112,11 @@ class GenerateContent implements ShouldQueue
             $content->status = "end";
             $content->save();
 
-            $this->GenerateImage($content, $translatedQuery);
+            if ($content->generate_image == "yes" and $content->images_status == "waiting") {
+                GenerateContent::dispatch($content)->onQueue('generate_image');
+            }
+
+            //$this->GenerateImage($content, $translatedQuery);
 
         } catch (\Throwable $th) {
             // مدیریت سایر خطاها
@@ -226,7 +230,7 @@ class GenerateContent implements ShouldQueue
                     Log::error("Fal AI API Error: " . $errorMessage);
 
                     // ادامه ندهید و از تابع خارج شوید
-                    return;
+                    return false;
                 }
 
                 // اگر خطایی وجود نداشت، ادامه دهید
