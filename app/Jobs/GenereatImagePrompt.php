@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
-class GenerateImage implements ShouldQueue
+class GenereatImagePrompt implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -144,5 +144,4 @@ class GenerateImage implements ShouldQueue
     {
         return strtolower((new GoogleTranslate('en'))->translate($text));
     }
-
 }
