@@ -70,7 +70,7 @@ class GenereatImagePrompt implements ShouldQueue
                 $response = Http::withHeaders([
                     'Authorization' => 'Key ' . $this->falAiApi,
                     'Content-Type' => 'application/json',
-                ])->timeout(60)->post($url, $body);
+                ])->timeout(120)->post($url, $body);
 
 
                 if ($response->successful()) {
