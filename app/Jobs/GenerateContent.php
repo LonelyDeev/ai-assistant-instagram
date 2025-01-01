@@ -150,7 +150,7 @@ class GenerateContent implements ShouldQueue
                 // درخواست به OpenAI برای ایجاد prompt تصویر
                 $ImagePromptResponse = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $this->openAiApi,
-                ])->timeout(600)->post('https://api.openai.com/v1/chat/completions', [
+                ])->timeout(120)->post('https://api.openai.com/v1/chat/completions', [
                     'model' => 'gpt-4-turbo',
                     'messages' => [
                         [
@@ -164,7 +164,7 @@ class GenerateContent implements ShouldQueue
                     ],
                     'max_tokens' => 300,
                 ]);
-           
+
                 $ImagePromptData = $ImagePromptResponse->json();
 
                 // بررسی خطا در پاسخ OpenAI
