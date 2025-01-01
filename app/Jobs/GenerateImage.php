@@ -31,7 +31,7 @@ class GenerateImage implements ShouldQueue
 
     public function handle(): void
     {
-        $contents = Content::where('generate_image', 'yes')->orWhere('images_status', 'waiting')->get();
+        $contents = Content::where('generate_image', 'yes')->where('images_status', 'waiting')->get();
         foreach ($contents as $content) {
 
             if (!$prompt) {

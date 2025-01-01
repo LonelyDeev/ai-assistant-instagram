@@ -113,7 +113,7 @@ class GenerateContent implements ShouldQueue
             $content->save();
 
             if ($content->generate_image == "yes" and $content->images_status == "waiting") {
-                GenerateContent::dispatch($content)->onQueue('generate_image');
+                GenerateContent::dispatch($content)->onQueue('generate_imagePrompt');
             }
 
             //$this->GenerateImage($content, $translatedQuery);
