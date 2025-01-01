@@ -38,7 +38,7 @@ class GenereatImagePrompt implements ShouldQueue
 
             $ImagePrompt = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->openAiApi,
-            ])->timeout(200)->post('https://api.openai.com/v1/chat/completions', [
+            ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
                 'model' => 'gpt-4-turbo',
                 'messages' => [
                     [
