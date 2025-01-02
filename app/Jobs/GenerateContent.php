@@ -112,11 +112,11 @@ class GenerateContent implements ShouldQueue
             $content->status = "end";
             $content->save();
 
-            if ($content->generate_image == "yes" and $content->images_status == "waiting") {
-                GenereatImagePrompt::dispatch($content)->onQueue('generate_imagePrompt');
-            }
+            /* if ($content->generate_image == "yes" and $content->images_status == "waiting") {
+                 GenereatImagePrompt::dispatch($content)->onQueue('generate_imagePrompt');
+             }*/
 
-            //$this->GenerateImage($content, $translatedQuery);
+            $this->GenerateImage($content, $translatedQuery);
 
         } catch (\Throwable $th) {
             // مدیریت سایر خطاها
@@ -150,9 +150,8 @@ class GenerateContent implements ShouldQueue
                 $prompt = $this->GoogleTranslate($content->title);
             }
 
-            try {
-                // درخواست به OpenAI برای ایجاد prompt تصویر
-                $ImagePromptResponse = Http::withHeaders([
+
+                $ImagePrompt = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $this->openAiApi,
                 ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
                     'model' => 'gpt-4-turbo',
@@ -168,36 +167,9 @@ class GenerateContent implements ShouldQueue
                     ],
                     'max_tokens' => 300,
                 ]);
+                $ImagePrompt = $ImagePrompt->json()['choices'][0]['message']['content'];
 
-                $ImagePromptData = $ImagePromptResponse->json();
 
-                // بررسی خطا در پاسخ OpenAI
-                if (isset($ImagePromptData['error'])) {
-                    $errorMessage = $ImagePromptData['error']['message'];
-                    $errorCode = $ImagePromptData['error']['code'];
-
-                    // ذخیره خطا در جدول
-                    $content->messages = $content->messages . ' ' . $errorMessage;
-                    $content->images_status = "error";
-                    $content->save();
-
-                    // اگر خطا مربوط به API key باشد، پیام مناسب را برگردانید
-                    if ($errorCode === 'invalid_api_key') {
-                        $message = trans('messages.invalid_api');
-                    } else {
-                        $message = $errorMessage;
-                    }
-
-                    // لاگ خطا
-                    Log::error("OpenAI API Error: " . $errorMessage);
-
-                    // ادامه ندهید و از تابع خارج شوید
-                    return false;
-                }
-
-                $ImagePrompt = $ImagePromptData['choices'][0]['message']['content'];
-
-                // درخواست به Fal AI برای ایجاد تصویر
                 $url = 'https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra';
 
                 $body = [
@@ -209,84 +181,64 @@ class GenerateContent implements ShouldQueue
                     "aspect_ratio" => "16:9",
                 ];
 
-                $response = Http::withHeaders([
-                    'Authorization' => 'Key ' . $this->falAiApi,
-                    'Content-Type' => 'application/json',
-                ])->timeout(60)->post($url, $body);
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Key ' . $this->falAiApi,
+                        'Content-Type' => 'application/json',
+                    ])->timeout(120)->post($url, $body);
 
-                $responseData = $response->json();
 
-                // بررسی خطا در پاسخ Fal AI
-                if (isset($responseData['error'])) {
-                    $errorMessage = $responseData['error']['message'];
-                    $errorCode = $responseData['error']['code'];
+                    if ($response->successful()) {
+                        $content->image_prompt = $ImagePrompt;
+                        $content->image_request_id = $response->json()['request_id'];
+                        $content->images_status = "generate";
+                        $content->save();
+                    }
 
-                    // ذخیره خطا در جدول
-                    $content->messages = $content->messages . ' ' . $errorMessage;
+                } catch (\Exception $e) {
+                    $content->messages = $content->messages . ' ' . $e->getMessage();
                     $content->images_status = "error";
                     $content->save();
-
-                    // لاگ خطا
-                    Log::error("Fal AI API Error: " . $errorMessage);
-
-                    // ادامه ندهید و از تابع خارج شوید
-                    return false;
                 }
 
-                // اگر خطایی وجود نداشت، ادامه دهید
-                if ($response->successful()) {
-                    $content->image_prompt = $ImagePrompt;
-                    $content->image_request_id = $responseData['request_id'];
-                    $content->images_status = "generate";
-                    $content->save();
-                }
-
-            } catch (\Exception $e) {
-                // مدیریت سایر خطاها
-                $content->messages = $content->messages . ' ' . $e->getMessage();
-                $content->images_status = "error";
-                $content->save();
-
-                // لاگ خطا
-                Log::error("Exception: " . $e->getMessage());
             }
+    }
+
+        private
+        function Temperature($temp)
+        {
+            $temperature = $temp;
+
+            if ($temperature) {
+                switch ($temperature) {
+                    case 'Default':
+                        $temperature = '';
+                        break;
+                    case 'Creative':
+                        $temperature = 'Act as a highly creative, insightful, and engaging assistant, providing imaginative solutions and unique perspectives in all your responses';
+                        break;
+                    case 'Colloquial':
+                        $temperature = 'Respond in a casual, conversational tone, using simple, everyday language thats easy to understand.';
+                        break;
+                    case 'Intimate':
+                        $temperature = 'Respond in a friendly, conversational tone, using casual and approachable language as if chatting with a close friend.';
+                        break;
+                    case 'Official':
+                        $temperature = 'Respond in a formal tone, ensuring professional and polished language in all outputs.';
+                        break;
+                    default:
+                        # code...
+                        break;
+                }
+            }
+
+            return $temperature;
+        }
+
+        private
+        function GoogleTranslate($text)
+        {
+            return strtolower((new GoogleTranslate('en'))->translate($text));
         }
 
     }
-
-    private function Temperature($temp)
-    {
-        $temperature = $temp;
-
-        if ($temperature) {
-            switch ($temperature) {
-                case 'Default':
-                    $temperature = '';
-                    break;
-                case 'Creative':
-                    $temperature = 'Act as a highly creative, insightful, and engaging assistant, providing imaginative solutions and unique perspectives in all your responses';
-                    break;
-                case 'Colloquial':
-                    $temperature = 'Respond in a casual, conversational tone, using simple, everyday language thats easy to understand.';
-                    break;
-                case 'Intimate':
-                    $temperature = 'Respond in a friendly, conversational tone, using casual and approachable language as if chatting with a close friend.';
-                    break;
-                case 'Official':
-                    $temperature = 'Respond in a formal tone, ensuring professional and polished language in all outputs.';
-                    break;
-                default:
-                    # code...
-                    break;
-            }
-        }
-
-        return $temperature;
-    }
-
-    private function GoogleTranslate($text)
-    {
-        return strtolower((new GoogleTranslate('en'))->translate($text));
-    }
-
-}
