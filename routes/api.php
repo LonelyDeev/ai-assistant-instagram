@@ -27,7 +27,7 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::middleware('auth:sanctum')->group(function () {
 
-        Route::get('/user', [UserController::class,'index']);
+        Route::get('/user', [UserController::class,'show']);
 
         Route::get('/plans', [PlanController::class,'index']);
         Route::post('/buy-plans', [PlanController::class,'buyPlans']);

@@ -40,10 +40,7 @@ dd($response->json());
             }
 
         } catch (\Exception $e) {
-            dd( $e->getMessage());
-            $content->messages = $content->messages . ' ' . $e->getMessage();
-            $content->images_status = "error";
-            $content->save();
+            return $e->getMessage();
         }
     }
 }

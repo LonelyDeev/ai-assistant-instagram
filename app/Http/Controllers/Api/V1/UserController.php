@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
+    public function show(Request $request)
     {
         return $this->respondWithResource(new UserResource($request->user()));
     }
