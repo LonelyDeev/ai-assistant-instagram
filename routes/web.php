@@ -27,7 +27,7 @@ Route::get('/', [AuthController::class, 'user_login']);
 
 Route::get('/admin', [AuthController::class, 'login']);
 
-
+Route::get('/test', [\App\Http\Controllers\Controller::class, 'index']);
 Route::get('/login', [AuthController::class, 'user_login'])->name('user.login');
 Route::post('/login', [AuthController::class, 'checkLoginMobile'])->name('user.checkLoginMobile');
 Route::get('/verify-code', [AuthController::class, 'verifyCode'])->name('user.verifyCode');

@@ -151,22 +151,22 @@ class GenerateContent implements ShouldQueue
             }
 
 
-                $ImagePrompt = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $this->openAiApi,
-                ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
-                    'model' => 'gpt-4-turbo',
-                    'messages' => [
-                        [
-                            'role' => 'system',
-                            'content' => 'You are an expert in creating image generation prompts for AI. Write a highly detailed prompt for generating an AI-generated image based on the following user description. Ensure it includes artistic style, environment, lighting, camera angle, and colors. Limit to 500 characters.'
-                        ],
-                        [
-                            'role' => 'user',
-                            'content' => 'Generate an image ' . $prompt,
-                        ]
+            $ImagePrompt = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->openAiApi,
+            ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4-turbo',
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'You are an expert in creating image generation prompts for AI. Write a highly detailed prompt for generating an AI-generated image based on the following user description. Ensure it includes artistic style, environment, lighting, camera angle, and colors. Limit to 500 characters.'
                     ],
-                    'max_tokens' => 300,
-                ]);
+                    [
+                        'role' => 'user',
+                        'content' => 'Generate an image ' . $prompt,
+                    ]
+                ],
+                'max_tokens' => 300,
+            ]);
             $responseData = $ImagePrompt->json();
 
             // بررسی وجود خطا در پاسخ
@@ -191,78 +191,77 @@ class GenerateContent implements ShouldQueue
 
                 return false;
             }
-                $ImagePrompt = $responseData['choices'][0]['message']['content'];
-                Log::info('Image Prompt: ' . $ImagePrompt);
+            $ImagePrompt = $responseData['choices'][0]['message']['content'];
 
-                $url = 'https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra';
+            $content->image_prompt = $ImagePrompt;
+            $content->save();
 
-                $body = [
+
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Key ' . $this->falAiApi,
+                    'Content-Type' => 'application/json',
+                ])->timeout(60)->post("https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra", [
                     "prompt" => $ImagePrompt,
                     "num_images" => 1,
                     "enable_safety_checker" => true,
                     "safety_tolerance" => "2",
                     "output_format" => "jpeg",
                     "aspect_ratio" => "16:9",
-                ];
-
-                try {
-                    $response = Http::withHeaders([
-                        'Authorization' => 'Key ' . $this->falAiApi,
-                        'Content-Type' => 'application/json',
-                    ])->timeout(60)->post($url, $body);
+                ]);
 
 
-                    if ($response->successful()) {
-                        $content->image_prompt = $ImagePrompt;
-                        $content->image_request_id = $response->json()['request_id'];
-                        $content->images_status = "generate";
-                        $content->save();
-                    }
+                if ($response->successful()) {
 
-                } catch (\Exception $e) {
-                    $content->messages = $content->messages . ' ' . $e->getMessage();
-                    $content->images_status = "error";
+                    $content->image_request_id = $response->json()['request_id'];
+                    $content->images_status = "generate";
                     $content->save();
                 }
 
-            }
-    }
-
-        private
-        function Temperature($temp)
-        {
-            $temperature = $temp;
-
-            if ($temperature) {
-                switch ($temperature) {
-                    case 'Default':
-                        $temperature = '';
-                        break;
-                    case 'Creative':
-                        $temperature = 'Act as a highly creative, insightful, and engaging assistant, providing imaginative solutions and unique perspectives in all your responses';
-                        break;
-                    case 'Colloquial':
-                        $temperature = 'Respond in a casual, conversational tone, using simple, everyday language thats easy to understand.';
-                        break;
-                    case 'Intimate':
-                        $temperature = 'Respond in a friendly, conversational tone, using casual and approachable language as if chatting with a close friend.';
-                        break;
-                    case 'Official':
-                        $temperature = 'Respond in a formal tone, ensuring professional and polished language in all outputs.';
-                        break;
-                    default:
-                        # code...
-                        break;
-                }
+            } catch (\Exception $e) {
+                $content->messages = $content->messages . ' ' . $e->getMessage();
+                $content->images_status = "error";
+                $content->save();
             }
 
-            return $temperature;
         }
-
-        private
-        function GoogleTranslate($text)
-        {
-            return strtolower((new GoogleTranslate('en'))->translate($text));
-        }
-
     }
+
+    private
+    function Temperature($temp)
+    {
+        $temperature = $temp;
+
+        if ($temperature) {
+            switch ($temperature) {
+                case 'Default':
+                    $temperature = '';
+                    break;
+                case 'Creative':
+                    $temperature = 'Act as a highly creative, insightful, and engaging assistant, providing imaginative solutions and unique perspectives in all your responses';
+                    break;
+                case 'Colloquial':
+                    $temperature = 'Respond in a casual, conversational tone, using simple, everyday language thats easy to understand.';
+                    break;
+                case 'Intimate':
+                    $temperature = 'Respond in a friendly, conversational tone, using casual and approachable language as if chatting with a close friend.';
+                    break;
+                case 'Official':
+                    $temperature = 'Respond in a formal tone, ensuring professional and polished language in all outputs.';
+                    break;
+                default:
+                    # code...
+                    break;
+            }
+        }
+
+        return $temperature;
+    }
+
+    private
+    function GoogleTranslate($text)
+    {
+        return strtolower((new GoogleTranslate('en'))->translate($text));
+    }
+
+}
