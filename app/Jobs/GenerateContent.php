@@ -167,8 +167,32 @@ class GenerateContent implements ShouldQueue
                     ],
                     'max_tokens' => 300,
                 ]);
-                $ImagePrompt = $ImagePrompt->json()['choices'][0]['message']['content'];
+            $responseData = $ImagePrompt->json();
 
+            // بررسی وجود خطا در پاسخ
+            if (isset($responseData['error'])) {
+                $errorMessage = $responseData['error']['message'];
+                $errorCode = $responseData['error']['code'];
+
+                // ذخیره خطا در جدول
+                $content->messages = $content->messages . ' ' . $errorMessage;
+                $content->images_status = "error";
+                $content->save();
+
+                // اگر خطا مربوط به API key باشد، پیام مناسب را برگردانید
+                if ($errorCode === 'invalid_api_key') {
+                    $message = trans('messages.invalid_api');
+                } else {
+                    $message = $errorMessage;
+                }
+
+                // لاگ خطا
+                Log::error("API Error: " . $errorMessage);
+
+                return false;
+            }
+                $ImagePrompt = $responseData['choices'][0]['message']['content'];
+                Log::info('Image Prompt: ' . $ImagePrompt);
 
                 $url = 'https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra';
 
@@ -185,7 +209,7 @@ class GenerateContent implements ShouldQueue
                     $response = Http::withHeaders([
                         'Authorization' => 'Key ' . $this->falAiApi,
                         'Content-Type' => 'application/json',
-                    ])->timeout(120)->post($url, $body);
+                    ])->timeout(60)->post($url, $body);
 
 
                     if ($response->successful()) {
