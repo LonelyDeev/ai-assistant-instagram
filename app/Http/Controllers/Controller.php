@@ -13,34 +13,4 @@ use Illuminate\Support\Facades\Http;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests,ApiResponseTrait;
-
-    public function index()
-    {
-        $falAiApi=helper::appdata('')->imageAiApiKey;
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Key ' . $falAiApi,
-                'Content-Type' => 'application/json',
-            ])->post("https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra", [
-                "prompt" => "Create an image depicting a humanoid robot planting trees in a lush, verdant forest. The robot, sleek and metallic with a gleaming silver finish, gently places a young sapling into the earth. Morning sunlight filters through the canopy, casting dappled light. The viewpoint is at ground level, looking up slightly at the robot to emphasize its role in nurturing nature. Use a realistic style with vibrant shades of green and soft, golden sunlight illuminating the scene",
-                "num_images" => 1,
-                "enable_safety_checker" => true,
-                "safety_tolerance" => "2",
-                "output_format" => "jpeg",
-                "aspect_ratio" => "16:9",
-            ]);
-
-
-dd($response->json());
-            if ($response->successful()) {
-
-                $content->image_request_id = $response->json()['request_id'];
-                $content->images_status = "generate";
-                $content->save();
-            }
-
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
 }
