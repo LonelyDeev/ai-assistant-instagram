@@ -56,6 +56,8 @@ class ChatAiController extends Controller
 
     private function generateText(Request $request)
     {
+
+
         $opAiKey = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
