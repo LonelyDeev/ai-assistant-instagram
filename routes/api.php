@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\GenerateContentController;
 use App\Http\Controllers\Api\V1\TransactionController;
 use App\Http\Controllers\Api\V1\ToolController;
+use App\Http\Controllers\Api\V1\ChatAiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 /*
@@ -40,6 +41,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::resource('/generate', GenerateContentController::class)->only(['store']);
 
         Route::get('/transactions', [TransactionController::class,'index']);
+
+        Route::post('/chat',[ChatAiController::class,'index']);
 
         Route::post('/logout', [AuthController::class,'logout']);
     });
