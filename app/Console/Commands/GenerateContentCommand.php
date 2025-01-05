@@ -43,7 +43,7 @@ class GenerateContentCommand extends Command
         }
         Artisan::call('queue:work --queue=generate_image_prompt --stop-when-empty  --timeout=60');
 
-        $contents_get_image = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->get();
+        $contents_get_image = Content::where(['images_status' => 'generate', 'generate_image' => 'yes'])->WhereNotNull('image_request_id')->select('id')->get();
         foreach ($contents_get_image as $content_image) {
             helper::GetContentImage($content_image->id);
         }
