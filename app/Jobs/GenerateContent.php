@@ -106,11 +106,15 @@ class GenerateContent implements ShouldQueue
 
             // اگر خطایی وجود نداشت، ادامه دهید
             $postContent = $responseData['choices'][0]['message']['content'];
+
+            $content->content = $postContent;
+
+
             $postContent = preg_replace('/[\x{1F600}-\x{1F64F}]/u', '', $postContent);
             $postContent = preg_replace('/[^\p{L}\p{N}\s]/u', '', $postContent);
             $wordCount = preg_match_all('/\p{L}+/u', $postContent);
 
-            $content->content = $postContent;
+
             $content->count += $wordCount;
             $content->status = "end";
             $content->save();
