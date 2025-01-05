@@ -56,8 +56,6 @@ class ChatAiController extends Controller
 
     private function generateText(Request $request)
     {
-
-
         $opAiKey = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
@@ -106,7 +104,7 @@ class ChatAiController extends Controller
         $response = Http::withHeaders($headers)->withBody(json_encode([
             'user_query' => $user_query,
             'thread_id' => $thread_id,
-            'assistant_id' => "asst_b5MsG33fBoG9BgD9wXIHURC2",
+            'assistant_id' => $assistant_id,
             'openai_apikey' => $opAiKey,
         ]), 'application/json')->post('https://openai.webcomapipy.ir/chat');
 
