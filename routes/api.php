@@ -43,6 +43,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/transactions', [TransactionController::class,'index']);
 
         Route::post('/chat',[ChatAiController::class,'index']);
+        Route::get('/get-image-chat/{chat_id}',[ChatAiController::class,'getImageChat']);
 
         Route::post('/logout', [AuthController::class,'logout']);
     });

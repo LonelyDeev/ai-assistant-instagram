@@ -29,7 +29,7 @@ return new class extends Migration
             $table->text('image_request_id')->nullable();
             $table->integer('count')->nullable()->default(0);
 
-            $table->enum('status_image', ['waiting', 'generate', 'end', 'error'])->default('waiting')->nullable();
+            $table->enum('images_status', ['waiting', 'generate', 'end', 'error'])->default('waiting')->nullable();
             $table->string('errorMessage')->nullable();
             $table->timestamps();
         });

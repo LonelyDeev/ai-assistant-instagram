@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Stichoza\GoogleTranslate\GoogleTranslate;
@@ -25,7 +26,7 @@ class ChatAiController extends Controller
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
-            'category' => 'required|in:blog,seo,translate,travel,cooking',
+            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking',
         ], [
             'user_query.required' => 'فیلد سوال الزامی است',
             'type.required' => 'نوع درخواست الزامی است',
@@ -112,20 +113,20 @@ class ChatAiController extends Controller
             return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $response->body()], 500);
         }
 
-        $postContent=$response->json()['response'];
+        $postContent = $response->json()['response'];
         $postContent = preg_replace('/[\x{1F600}-\x{1F64F}]/u', '', $postContent);
         $postContent = preg_replace('/[^\p{L}\p{N}\s]/u', '', $postContent);
         $wordCount = preg_match_all('/\p{L}+/u', $postContent);
 
-        $newChat=new Chat();
-        $newChat->user_id=auth()->id();
-        $newChat->type=$request->input('type');
-        $newChat->category=$request->input('category');
-        $newChat->user_query=$request->input('user_query');
-        $newChat->assistant_id=$assistant_id;
-        $newChat->thread_id=$thread_id;
-        $newChat->response=$response->json()['response'];
-        $newChat->count=$wordCount;
+        $newChat = new Chat();
+        $newChat->user_id = auth()->id();
+        $newChat->type = $request->input('type');
+        $newChat->category = $request->input('category');
+        $newChat->user_query = $request->input('user_query');
+        $newChat->assistant_id = $assistant_id;
+        $newChat->thread_id = $thread_id;
+        $newChat->response = $response->json()['response'];
+        $newChat->count = $wordCount;
         $newChat->save();
 
 
@@ -156,33 +157,25 @@ class ChatAiController extends Controller
 
         // بررسی وجود خطا در پاسخ
         if (isset($responseData['error'])) {
+
             $errorMessage = $responseData['error']['message'];
             $errorCode = $responseData['error']['code'];
-
-          /*  // ذخیره خطا در جدول
-            $content->messages = $content->messages . ' ' . $errorMessage;
-            $content->images_status = "error";
-            $content->save();*/
-
-            // اگر خطا مربوط به API key باشد، پیام مناسب را برگردانید
-            if ($errorCode === 'invalid_api_key') {
-                $message = trans('messages.invalid_api');
-            } else {
-                $message = $errorMessage;
-            }
-
-            // لاگ خطا
-            Log::error("API Error: " . $errorMessage);
-
-            return;
+            return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $errorMessage], 500);
         }
         $ImagePrompt = $responseData['choices'][0]['message']['content'];
 
-        /*$content->image_prompt = $ImagePrompt;
-        $content->save();*/
+        $newChat = new Chat();
+        $newChat->user_id = auth()->id();
+        $newChat->type = $request->input('type');
+        $newChat->category = $request->input('category');
+        $newChat->user_query = $request->input('user_query');
+        $newChat->image_prompt = $ImagePrompt;
+        $newChat->count = 200;
+        $newChat->save();
+
 
         //$url = 'https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra';
-        $url="https://queue.fal.run/fal-ai/fast-sdxl";
+        $url = "https://queue.fal.run/fal-ai/fast-sdxl";
         //$url="https://queue.fal.run/fal-ai/fast-turbo-diffusion";
 
         try {
@@ -201,20 +194,117 @@ class ChatAiController extends Controller
 
             if ($response->successful()) {
 
-                $content->image_request_id = $response->json()['request_id'];
-                $content->images_status = "generate";
-                $content->save();
+                $newChat->image_request_id = $response->json()['request_id'];
+                $newChat->images_status = "generate";
+                $newChat->save();
+                $get_image_chat=asset('').'api/v1/get-image-chat/'.$newChat->id;
+                return response()->json(['message'=>'تصویر با موفقیت ثبت شد و در حال پردازش است.','chat_id' => $newChat->id,'get-image-chat'=>$get_image_chat]);
             }
 
         } catch (\Exception $e) {
-            $content->messages = $content->messages . ' ' . $e->getMessage();
-            $content->images_status = "error";
-            $content->save();
+            return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $e->getMessage()], 500);
         }
     }
 
     private function GoogleTranslate($text)
     {
         return strtolower((new GoogleTranslate('en'))->translate($text));
+    }
+
+    public function getImageChat($chat_id)
+    {
+        $content = Chat::find($chat_id);
+        if ($content and $content->image_request_id and $content->images_status == "generate" and $content->type == "image") {
+
+            $falAiApi = helper::appdata('')->imageAiApiKey;
+
+            //flux-pro
+            //$baseUrl = "https://queue.fal.run/fal-ai/flux-pro/requests/";
+
+            //fast-sdxl
+            $baseUrl = "https://queue.fal.run/fal-ai/fast-sdxl/requests/";
+
+            //fast-turbo-diffusion
+            //$baseUrl = "https://queue.fal.run/fal-ai/fast-turbo-diffusion/requests/";
+
+
+            $statusUrl = $baseUrl . $content->image_request_id . "/status";
+            $detailsUrl = $baseUrl . $content->image_request_id;
+
+            // مرحله 1: بررسی وضعیت
+            $response = Http::withHeaders([
+                'Authorization' => 'Key ' . $falAiApi,
+                'Content-Type' => 'application/json',
+            ])->get($statusUrl);
+
+            if (isset($response->json()['detail'])) {
+                $content->errorMessage .= ' ' . $response->json()['detail'];
+                $content->images_status = "error";
+                $content->save();
+                return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $response->json()['detail']], 500);
+
+            }
+
+            $statusData = $response->json();
+            if (isset($statusData['status']) && $statusData['status'] === 'COMPLETED') {
+                // مرحله 2: دریافت اطلاعات تصویر
+                $imageResponse = Http::withHeaders([
+                    'Authorization' => 'Key ' . $falAiApi,
+                    'Content-Type' => 'application/json',
+                ])->get($detailsUrl);
+
+
+                if ($imageResponse->failed()) {
+                    $errorData = $imageResponse->json();
+                    $errorMessage = $errorData['message'] ?? json_encode($errorData); // اگر کلید message وجود نداشت، کل آرایه را به JSON تبدیل کنید
+                    $content->messages .= ' ' . $errorMessage;
+                    $content->images_status = 'error';
+                    $content->save();
+                    return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $errorMessage], 500);
+
+                }
+
+                $imageData = $imageResponse->json();
+                $imageUrl = $imageData['images'][0]['url'] ?? null;
+
+                if ($imageUrl) {
+                    // مرحله 3: ذخیره تصویر در پوشه‌های لاراول
+                    $imageContent = Http::get($imageUrl);
+
+                    if ($imageContent->failed()) {
+                        $content->messages .= ' Failed to download image.';
+                        $content->save();
+                    }
+
+                    $path = public_path('images/chats/' . $content->vendor_id . '/generated');
+                    if (!File::exists($path)) {
+                        File::makeDirectory($path, 0775, true);  // Create directory recursively
+                    }
+
+                    $imageName = basename($imageUrl);
+                    $imagePath = 'images/chats/' . $content->vendor_id . '/generated/' . $imageName;
+                    file_put_contents(public_path($imagePath), $imageContent->body());
+
+                    $content->gallery()->create([
+                        'image_link' => $imageUrl,
+                        'image' => $imagePath,
+                    ]);
+                    $content->count += 200;
+                    $content->images_status = 'end';
+                    $content->save();
+
+                    $imageUrlLink=asset($imagePath);
+                    return response()->json(['message' => 'تصویر با موفقیت ایجاد شد','image'=>$imageUrlLink], 200);
+                } else {
+                    // اگر URL تصویر موجود نباشد
+                    $content->messages .= ' No image URL found.';
+                    $content->save();
+
+                    return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => ' No image URL found.'], 500);
+                }
+            }else{
+                return response()->json(['message' => 'تصویر در حال پردازش است.',], 422);
+            }
+        }
     }
 }
