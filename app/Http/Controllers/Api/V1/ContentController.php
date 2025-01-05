@@ -19,8 +19,8 @@ class ContentController extends Controller
     public function show(Request $request, $id)
     {
         $content=$request->user()->contents()->where('id',$id)->first();
-        if ($content) {
-            helper::GetContentImage($content->id);
+        if (isset($content) and $content->images_status=="generate" and $content->image_request_id=null) {
+            helper::GetContentImage($content);
         }
 
         return $this->respondWithResource(new ContentResource($content));
