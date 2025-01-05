@@ -35,7 +35,6 @@ class GenerateContentCommand extends Command
 
     public function handle()
     {
-        Log::info('GenerateContent command started.');
         $contents_image_prompt = Content::whereNotNull('title')->Where('generate_image', 'yes')->where('images_status','waiting')->get();
 
         foreach ($contents_image_prompt as $content_image_prompt) {
@@ -49,8 +48,6 @@ class GenerateContentCommand extends Command
                 helper::GetContentImage($content_image);
             }
         }
-
-
 
         Artisan::call('queue:work --queue=generate_content --stop-when-empty  --timeout=60');
 
