@@ -237,7 +237,6 @@ class HomeController extends Controller
     public function contentdetail(Request $request)
     {
         $content = Content::with("tools_info")->where("id", $request->id)->first();
-        helper::GetContentImage($content->id);
         return view('admin.mycontent.contentdetail', compact('content'));
     }
 
