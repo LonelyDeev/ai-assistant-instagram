@@ -369,13 +369,11 @@ class helper
                     $content->save();
                 }
 
-// ساخت پوشه‌ها در صورت عدم وجود
                 $path = public_path('images/' . $content->vendor_id . '/generated');
                 if (!File::exists($path)) {
                     File::makeDirectory($path, 0775, true);  // Create directory recursively
                 }
 
-// ذخیره تصویر در پوشه public
                 $imageName = basename($imageUrl);
                 $imagePath = 'images/' . $content->vendor_id . '/generated/' . $imageName;
                 file_put_contents(public_path($imagePath), $imageContent->body());
