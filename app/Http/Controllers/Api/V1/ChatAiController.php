@@ -56,7 +56,7 @@ class ChatAiController extends Controller
 
     private function generateText(Request $request)
     {
-        $OPENAI_API_KEY = "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";
+        $OPENAI_API_KEY = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
                 $assistant_id = "asst_WJIrOz6oAnM07pOIHscZG068";
