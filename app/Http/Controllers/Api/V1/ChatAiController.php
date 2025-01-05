@@ -56,7 +56,7 @@ class ChatAiController extends Controller
 
     private function generateText(Request $request)
     {
-        $OPENAI_API_KEY = env('OPENAI_API_KEY');
+        $opAiKey = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
                 $assistant_id = "asst_WJIrOz6oAnM07pOIHscZG068";
@@ -81,7 +81,7 @@ class ChatAiController extends Controller
         if (!$thread_id) {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $OPENAI_API_KEY,
+                'Authorization' => 'Bearer ' . $opAiKey,
                 'OpenAI-Beta' => 'assistants=v2',
             ])->post('https://api.openai.com/v1/threads', []);
 
@@ -105,7 +105,7 @@ class ChatAiController extends Controller
             'user_query' => $user_query,
             'thread_id' => $thread_id,
             'assistant_id' => "asst_b5MsG33fBoG9BgD9wXIHURC2",
-            'openai_apikey' => $OPENAI_API_KEY,
+            'openai_apikey' => $opAiKey,
         ]), 'application/json')->post('https://openai.webcomapipy.ir/chat');
 
         if ($response->failed()) {
