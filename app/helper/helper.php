@@ -380,12 +380,11 @@ class helper
                 $imagePath = 'images/' . $content->vendor_id . '/generated/' . $imageName;
                 file_put_contents(public_path($imagePath), $imageContent->body());
 
-// ذخیره رکورد گالری
                 $content->gallery()->create([
                     'image_link' => $imageUrl,
                     'image' => $imagePath,
                 ]);
-
+                $content->count += 200;
                 $content->images_status = 'end';
                 $content->save();
             } else {
