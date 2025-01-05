@@ -333,6 +333,7 @@ class helper
             'Authorization' => 'Key ' . $falAiApi,
             'Content-Type' => 'application/json',
         ])->get($statusUrl);
+
         if (isset($response->json()['detail'])) {
             $content->messages .= ' ' . $response->json()['detail'];
             $content->images_status = "error";
@@ -340,7 +341,7 @@ class helper
         }
 
         $statusData = $response->json();
-        if ($statusData['status'] === 'COMPLETED') {
+        if (isset($statusData['status']) && $statusData['status'] === 'COMPLETED') {
             // مرحله 2: دریافت اطلاعات تصویر
             $imageResponse = Http::withHeaders([
                 'Authorization' => 'Key ' . $falAiApi,
@@ -349,7 +350,10 @@ class helper
 
 
             if ($imageResponse->failed()) {
-                $content->messages .= ' ' . $imageResponse->json()['message'];
+                $errorData = $imageResponse->json();
+                $errorMessage = $errorData['message'] ?? json_encode($errorData); // اگر کلید message وجود نداشت، کل آرایه را به JSON تبدیل کنید
+                $content->messages .= ' ' . $errorMessage;
+                $content->images_status = 'error';
                 $content->save();
             }
 
