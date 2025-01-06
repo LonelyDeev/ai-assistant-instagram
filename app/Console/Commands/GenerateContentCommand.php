@@ -51,7 +51,12 @@ class GenerateContentCommand extends Command
 
         Artisan::call('queue:work --queue=generate_content --stop-when-empty  --timeout=60');
 
+        $logFilePath = storage_path('logs/laravel.log');
 
+        if (file_exists($logFilePath)) {
+            unlink($logFilePath); // حذف فایل
+            return 'Log file cleared successfully!';
+        }
     }
 
 }
