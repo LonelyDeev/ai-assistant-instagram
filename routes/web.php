@@ -11,6 +11,7 @@ use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\TransactionController;
 use App\Http\Controllers\admin\SettingsController;
 use App\Http\Controllers\TestController;
+use \Illuminate\Support\Facades\Artisan;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -161,6 +162,16 @@ Route::middleware('MaintanaceMiddleware')->group(function () {
         // Route::post('/lightdark', [OtherController::class, 'lightdark']);
         Route::get('/lightdark-{theme}', [OtherController::class, 'darkmode']);
     });
+});
+Route::get('/clear-cache', function () {
+    // پاک کردن کش‌های Laravel
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('permission:cache-reset');
+
+    return "تمام کش‌ها با موفقیت پاک شدند!";
 });
 
 
