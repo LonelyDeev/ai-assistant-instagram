@@ -301,7 +301,7 @@ class ChatAiController extends Controller
                         'image_link' => $imageUrl,
                         'image' => $imagePath,
                     ]);
-                    $content->count += 200;
+                    $content->count = 200;
                     $content->images_status = 'end';
                     $content->save();
 
@@ -317,6 +317,10 @@ class ChatAiController extends Controller
             }else{
                 return response()->json(['message' => 'تصویر در حال پردازش است.',], 422);
             }
+        }
+        elseif($content and $content->images_status == "end"){
+            $imageUrlLink=$content->gallery->image;
+            return response()->json(['message' => 'تصویر با موفقیت ایجاد شد','image'=>$imageUrlLink], 200);
         }
     }
 }
