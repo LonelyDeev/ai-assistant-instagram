@@ -26,7 +26,7 @@ class ChatAiController extends Controller
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
-            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking',
+            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking,holoo,tamin,laboroffice,sepidar',
         ], [
             'user_query.required' => 'فیلد سوال الزامی است',
             'type.required' => 'نوع درخواست الزامی است',
@@ -60,19 +60,31 @@ class ChatAiController extends Controller
         $opAiKey = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
-                $assistant_id = "asst_WJIrOz6oAnM07pOIHscZG068";
+                $assistant_id = "asst_lDloAUlED48VB8kSBfb1YyOi";
                 break;
             case 'seo':
-                $assistant_id = "asst_l2kyJUrxsULeUUA4YXsAcQYq";
+                $assistant_id = "asst_xzwpySAbqPmMVP8uy8Xas9bq";
                 break;
             case 'translate':
-                $assistant_id = "asst_wOrCK2ovpfRN16uhcRO7evW3";
+                $assistant_id = "asst_Z5ggRHM3qYMwKXJYilVF57dD";
                 break;
             case 'travel':
-                $assistant_id = "asst_wUdMybjciNjTzrGsBYuDEd8T";
+                $assistant_id = "asst_axncaxo2PKH42OrNk7GjTjuq";
                 break;
             case 'cooking':
-                $assistant_id = "asst_b5MsG33fBoG9BgD9wXIHURC2";
+                $assistant_id = "asst_IB9EW0eJtcyIOsb7jsdOpkkw";
+                break;
+            case 'holoo':
+                $assistant_id = "asst_sXO9zoUVQaRBOY5XU23aCIIt";
+                break;
+            case 'tamin':
+                $assistant_id = "asst_BfMuAxYyfDZErkvzNWoMAAxl";
+                break;
+            case 'laboroffice':
+                $assistant_id = "asst_tMHjw5sIGZOsB0AcYboZuOMW";
+                break;
+            case 'sepidar':
+                $assistant_id = "asst_sXO9zoUVQaRBOY5XU23aCIIt";
                 break;
             default:
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
