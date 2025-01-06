@@ -319,8 +319,9 @@ class ChatAiController extends Controller
             }
         }
         elseif($content and $content->images_status == "end"){
-            $imageUrlLink=$content->gallery->image;
-            return response()->json(['message' => 'تصویر با موفقیت ایجاد شد','image'=>$imageUrlLink], 200);
+            $gallery=$content->gallery()->latest()->first();
+            $imageUrlLink=$gallery->image;
+            return response()->json(['message' => 'تصویر از قبل موجود می باشد','image'=>$imageUrlLink], 200);
         }
     }
 }
