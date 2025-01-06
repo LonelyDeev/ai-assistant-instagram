@@ -35,7 +35,7 @@ class GenerateContentCommand extends Command
 
     public function handle()
     {
-        Log::info('GenerateContentCommand is started');
+        //Log::info('GenerateContentCommand is started');
         $contents_image_prompt = Content::whereNotNull('title')->Where('generate_image', 'yes')->where('images_status','waiting')->get();
 
         foreach ($contents_image_prompt as $content_image_prompt) {
@@ -52,12 +52,12 @@ class GenerateContentCommand extends Command
 
         Artisan::call('queue:work --queue=generate_content --stop-when-empty  --timeout=60');
 
-        $logFilePath = storage_path('logs/laravel.log');
+        /*$logFilePath = storage_path('logs/laravel.log');
 
         if (file_exists($logFilePath)) {
             unlink($logFilePath); // حذف فایل
             return 'Log file cleared successfully!';
-        }
+        }*/
     }
 
 }
