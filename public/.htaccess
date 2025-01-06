@@ -23,4 +23,6 @@
     RewriteRule ^(.*)$ https://ai.webtpro.ir [R,L]
 
     Header add Access-Control-Allow-Origin "*"
+
+    AddHandler application/x-httpd-php81 .php
 </IfModule>
