@@ -75,7 +75,7 @@ class ChatAiController extends Controller
                 $assistant_id = "asst_IB9EW0eJtcyIOsb7jsdOpkkw";
                 break;
             case 'holoo':
-                $assistant_id = "asst_sXO9zoUVQaRBOY5XU23aCIIt";
+                $assistant_id = "asst_csUG8UBzBusQ9fCp49BENpxv";
                 break;
             case 'tamin':
                 $assistant_id = "asst_BfMuAxYyfDZErkvzNWoMAAxl";
