@@ -21,4 +21,6 @@
 
     RewriteCond %{SERVER_PORT} 80
     RewriteRule ^(.*)$ https://ai.webtpro.ir [R,L]
+
+    Header add Access-Control-Allow-Origin "*"
 </IfModule>
