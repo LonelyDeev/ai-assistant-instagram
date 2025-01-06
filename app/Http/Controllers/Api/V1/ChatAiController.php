@@ -320,8 +320,12 @@ class ChatAiController extends Controller
         }
         elseif($content and $content->images_status == "end"){
             $gallery=$content->gallery()->latest()->first();
-            $imageUrlLink=$gallery->image;
-            return response()->json(['message' => 'تصویر از قبل موجود می باشد','image'=>$imageUrlLink], 200);
+            if (isset($gallery)){
+                $imageUrlLink=$gallery->image;
+                return response()->json(['message' => 'تصویر از قبل موجود می باشد','image'=>$imageUrlLink], 200);
+            }
+            return response()->json(['message' => 'تصویر پیدا نشد.',], 422);
+
         }
     }
 }
