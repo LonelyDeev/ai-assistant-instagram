@@ -35,7 +35,6 @@ class GenerateContent implements ShouldQueue
 
     public function handle()
     {
-
         //Log::info('GenerateContent Job started.');
         $contents = Content::where('status', 'waiting')->get();
         foreach ($contents as $content) {
