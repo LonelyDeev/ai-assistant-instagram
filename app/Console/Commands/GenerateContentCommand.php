@@ -29,8 +29,8 @@ class GenerateContentCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->openAiApi = helper::appdata('')->aiApiKey;
-        $this->falAiApi = helper::appdata('')->imageAiApiKey;
+        $this->openAiApi = env('OPENAI_API_KEY');
+        $this->falAiApi = env('IMAGE_AI_API_KEY');
     }
 
     public function handle()

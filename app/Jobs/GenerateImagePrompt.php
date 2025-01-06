@@ -23,8 +23,8 @@ class GenerateImagePrompt implements ShouldQueue
 
     public function __construct()
     {
-        $this->openAiApi = helper::appdata('')->aiApiKey;
-        $this->falAiApi = helper::appdata('')->imageAiApiKey;
+        $this->openAiApi = env('OPENAI_API_KEY');
+        $this->falAiApi = env('IMAGE_AI_API_KEY');
     }
 
 
