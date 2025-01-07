@@ -54,7 +54,6 @@ class ChatAiController extends Controller
             return response()->json(['message' => 'خطا در پردازش درخواست'], 500);
         }
     }
-
     private function generateText(Request $request)
     {
         $opAiKey = env('OPENAI_API_KEY');
