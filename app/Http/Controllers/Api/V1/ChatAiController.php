@@ -92,7 +92,7 @@ class ChatAiController extends Controller
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
         }
 
-        $chatPots=Chat::where(['user_id'=>auth()->id,'assistant_id'=>$assistant_id])->first();
+        $chatPots=Chat::where(['user_id'=>auth()->id(),'assistant_id'=>$assistant_id])->first();
 
         if (isset($chatPots) and $chatPots->thread_id) {
             $thread_id=$chatPots->thread_id;
