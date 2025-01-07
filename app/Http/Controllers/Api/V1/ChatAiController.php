@@ -92,8 +92,11 @@ class ChatAiController extends Controller
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
         }
 
-        $thread_id = auth()->user()->thread_id;
-        if (!$thread_id) {
+        $chatPots=Chat::where(['user_id'=>auth()->id,'assistant_id'=>$assistant_id])->first();
+
+        if (isset($chatPots) and $chatPots->thread_id) {
+            $thread_id=$chatPots->thread_id;
+        }else{
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $opAiKey,
@@ -106,6 +109,7 @@ class ChatAiController extends Controller
 
             $thread_id = $response->json()['id'];
             User::where('id', auth()->user()->id)->update(['thread_id' => $thread_id]);
+
         }
 
         // ارسال درخواست به OpenAI
