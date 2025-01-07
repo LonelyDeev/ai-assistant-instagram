@@ -26,7 +26,7 @@ class ChatAiController extends Controller
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
-            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking,holoo,tamin,laboroffice,sepidar',
+            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking,holoo,tamin,laboroffice,sepidar,shahrdari',
         ], [
             'user_query.required' => 'فیلد سوال الزامی است',
             'type.required' => 'نوع درخواست الزامی است',
@@ -85,6 +85,9 @@ class ChatAiController extends Controller
                 break;
             case 'sepidar':
                 $assistant_id = "asst_sXO9zoUVQaRBOY5XU23aCIIt";
+                break;
+            case 'shahrdari':
+                $assistant_id = "asst_SzvtHGbPC336RgcPy2svwfRM";
                 break;
             default:
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
