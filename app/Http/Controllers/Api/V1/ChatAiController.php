@@ -60,7 +60,7 @@ class ChatAiController extends Controller
         $opAiKey = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
-                $assistant_id = "asst_lDloAUlED48VB8kSBfb1YyOi";
+                $assistant_id = "asst_WVkXlpBICWGzmqZtFBrNytg6";
                 break;
             case 'seo':
                 $assistant_id = "asst_xzwpySAbqPmMVP8uy8Xas9bq";
