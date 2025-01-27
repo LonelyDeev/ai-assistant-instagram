@@ -108,7 +108,7 @@ class GenerateContent implements ShouldQueue
             $promptTokens = $responseData['usage']['prompt_tokens'];
             $completionTokens = $responseData['usage']['completion_tokens'];
             $totalTokens = $responseData['usage']['total_tokens'];
-dd($promptTokens,$completionTokens,$totalTokens);
+
             $postContent = preg_replace('/[\x{1F600}-\x{1F64F}]/u', '', $postContent);
             $postContent = preg_replace('/[^\p{L}\p{N}\s]/u', '', $postContent);
             $wordCount = preg_match_all('/\p{L}+/u', $postContent);
