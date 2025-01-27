@@ -44,11 +44,8 @@ class GenerateContent implements ShouldQueue
 
 
                 $this->InstagramAssistant($content);
-
             }
-
         }
-
     }
 
     private function InstagramAssistant($content)
@@ -108,7 +105,10 @@ class GenerateContent implements ShouldQueue
 
             $content->content = $postContent;
 
-
+            $promptTokens = $responseData['usage']['prompt_tokens'];
+            $completionTokens = $responseData['usage']['completion_tokens'];
+            $totalTokens = $responseData['usage']['total_tokens'];
+dd($promptTokens,$completionTokens,$totalTokens);
             $postContent = preg_replace('/[\x{1F600}-\x{1F64F}]/u', '', $postContent);
             $postContent = preg_replace('/[^\p{L}\p{N}\s]/u', '', $postContent);
             $wordCount = preg_match_all('/\p{L}+/u', $postContent);
@@ -116,6 +116,7 @@ class GenerateContent implements ShouldQueue
 
             $content->count += $wordCount;
             $content->status = "end";
+            $content->totalTokens = $totalTokens;
             $content->save();
 
 
@@ -144,7 +145,6 @@ class GenerateContent implements ShouldQueue
             // لاگ خطا
             Log::error("Exception: " . $th->getMessage());
         }
-
     }
 
     private function GenerateImage($content, $prompt = null)
@@ -222,13 +222,11 @@ class GenerateContent implements ShouldQueue
                     $content->images_status = "generate";
                     $content->save();
                 }
-
             } catch (\Exception $e) {
                 $content->messages = $content->messages . ' ' . $e->getMessage();
                 $content->images_status = "error";
                 $content->save();
             }
-
         }
     }
 
@@ -268,5 +266,4 @@ class GenerateContent implements ShouldQueue
     {
         return strtolower((new GoogleTranslate('en'))->translate($text));
     }
-
 }
