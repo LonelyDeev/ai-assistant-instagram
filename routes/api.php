@@ -33,6 +33,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/plans', [PlanController::class,'index']);
         Route::post('/buy-plans', [PlanController::class,'buyPlans']);
         Route::get('/buy-plans/zarinpal-verify', [PlanController::class, 'zarinpalVerifyApi'])->name('zarinpal_verify');
+        Route::get('/get-bank-info', [PlanController::class,'getBankInfo']);
 
         Route::resource('/content', ContentController::class)->only(['index', 'show']);
 

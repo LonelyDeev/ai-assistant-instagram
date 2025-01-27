@@ -67,7 +67,14 @@ class helper
 
     public static function image_path($image)
     {
+        // اگر مسیر فایل با `/storage` شروع شود، آن را به‌عنوان مسیر عمومی در نظر بگیرید
+        if (Str::startsWith($image, '/storage')) {
+            return url($image); // مسیر عمومی را مستقیماً بازگردانید
+        }
+
+        // در غیر این صورت، مسیرهای مربوط به admin-assets را بررسی کنید
         $url = url(env('ASSETPATHURL') . 'admin-assets/images/about/no-data.svg');
+
         if (Str::contains($image, 'profile')) {
             $url = url(env('ASSETPATHURL') . 'admin-assets/images/profile/' . $image);
         }
@@ -110,9 +117,9 @@ class helper
         if (Str::contains($image, ['1.svg', '2.svg', '3.svg', '4.svg', '5.svg', '6.svg', '7.svg', '8.svg', '9.svg', '10.svg', '11.svg', '12.svg', '13.svg', '14.svg', '15.svg', '16.svg'])) {
             $url = url(env('ASSETPATHURL') . 'admin-assets/images/tools_icons/' . $image);
         }
+
         return $url;
     }
-
     public static function plandetail($plan_id)
     {
         $planinfo = PricingPlan::where('id', $plan_id)->first();

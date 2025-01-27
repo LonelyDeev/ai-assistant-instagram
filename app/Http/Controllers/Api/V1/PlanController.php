@@ -29,7 +29,7 @@ class PlanController extends Controller
     {
         $request->validate([
             'plan_id' => 'required|exists:plans,id',
-            'gateway' => 'nullable|in:zarinpal',
+            'gateway' => 'nullable|in:zarinpal,banktransfer',
         ]);
 
         $plan = PricingPlan::where('id', $request->plan_id)->first();
@@ -42,16 +42,30 @@ class PlanController extends Controller
 
             if ($request->gateway == "zarinpal") {
                 $buyPlans=$this->buyPlanZarinpalApi($request);
+
+                if ($buyPlans['status']){
+                    return $this->respondSuccess($buyPlans['message'],[
+                        'gateway' => 'zarinpal',
+                        'amount' => $plan->price,
+                        'payment_link'=>$buyPlans['payment_link']
+                    ]);
+                }
             }
 
-
-            if ($buyPlans['status']){
-                return $this->respondSuccess($buyPlans['message'],[
-                    'gateway' => 'zarinpal',
-                    'amount' => $plan->price,
-                    'payment_link'=>$buyPlans['payment_link']
+            if ($request->gateway == "banktransfer") {
+                $request->validate([
+                    'screenshot'=> 'required|file|mimes:jpg,jpeg,png|max:2048',
                 ]);
+
+                $buyPlans=$this->buyPlanBankTransferApi($request);
+
+                if ($buyPlans['status']){
+                    return $this->respondSuccess($buyPlans['message']);
+                }
             }
+
+
+
             return $this->respondError($buyPlans['message']);
 
         } else {
@@ -85,6 +99,56 @@ class PlanController extends Controller
 
 
         return $this->respondError('Invalid gateway');
+
+    }
+
+    private function buyPlanBankTransferApi(Request $request)
+    {
+
+        try {
+            $plan = PricingPlan::where('id', $request->plan_id)->first();
+
+            $screenshot="";
+            if ($request->hasFile('screenshot')) {
+                $imagePath = $this->uploadImage($request,'screenshot');
+                $screenshot = $imagePath;
+            }
+
+            $transaction = new Transaction();
+
+            $transaction->vendor_id = Auth::user()->id;
+            $transaction->plan_id = $request->plan_id;
+            $transaction->plan_name = $plan->name;
+            $transaction->payment_type = "banktransfer";
+            $transaction->payment_id = null;
+            $transaction->amount = $plan->price;
+            $transaction->tools_limit =$plan->tools_limit;
+            $transaction->word_limit = $plan->word_limit;
+            $transaction->status = 1;
+            $transaction->purchase_date = date("Y-m-d h:i:sa");
+            $transaction->expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
+            $transaction->duration = $plan->duration;
+            $transaction->days = $plan->days;
+            $transaction->screenshot = $screenshot;
+            $transaction->save();
+
+            $checkuser = User::find(Auth::user()->id);
+            $checkuser->plan_id = $plan->id;
+            $checkuser->purchase_amount = $plan->price;
+            $checkuser->purchase_date = date("Y-m-d h:i:sa");
+            $checkuser->save();
+
+            return [
+                'status' => true,
+                'message' => 'با موفقیت ثبت شد و پس از برسی، پلن شما فعال می شود.',
+            ];
+
+        } catch (\Throwable $th) {
+            return [
+                'status' => false,
+                'message' => $th->getMessage(),
+            ];
+        }
 
     }
 
@@ -169,5 +233,46 @@ class PlanController extends Controller
         }
 
 
+    }
+
+
+    private function uploadImage(Request $request, $inputName = 'featured_image')
+    {
+        try {
+            if (!$request->hasFile($inputName)) {
+                return null;
+            }
+
+            $file = $request->file($inputName);
+
+            $validated = $request->validate([
+                $inputName => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            /*$fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('uploads/images', $fileName, 'public');
+            return '/storage/' . $filePath;*/
+
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // ذخیره فایل در مسیر public/uploads/images
+            $filePath = 'storage/uploads/images/' . $fileName;
+            $file->move(public_path('storage/uploads/images'), $fileName);
+
+            // بازگشت مسیر فایل ذخیره شده
+            return '/storage/uploads/images/' . $fileName;
+        } catch (\Exception $e) {
+            throw new \Exception('آپلود تصویر با شکست مواجه شد: ' . $e->getMessage());
+        }
+    }
+
+    public function getBankInfo()
+    {
+        $paymentmethod = Payment::where(['is_available'=> '1','payment_name'=>'BankTransfer'])->first();
+        return json_encode([
+            'bankName' => $paymentmethod->bank_name,
+            'accountName' => $paymentmethod->account_holder_name,
+            'accountNumber' => $paymentmethod->account_number,
+        ]);
     }
 }

@@ -118,6 +118,7 @@ return [
    'bank_ifsc_code' => 'کد سوئیفت / کد IFSC / کد مرتب سازی',
    'transaction_image' => 'تصویر تراکنش',
    'banktransfer' => 'حواله بانکی',
+   'bankTransfer' => 'حواله بانکی',
    'screenshot' => 'اسکرین شات',
    'tool_name'=> 'نام ابزار',
    'variation' => 'تغییر',
