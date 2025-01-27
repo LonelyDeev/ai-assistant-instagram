@@ -116,7 +116,7 @@ class GenerateContent implements ShouldQueue
 
             $content->count += $wordCount;
             $content->status = "end";
-            $content->totalTokens = $totalTokens;
+            $content->tokenCount = $totalTokens;
             $content->save();
 
 
