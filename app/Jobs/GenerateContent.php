@@ -116,7 +116,7 @@ class GenerateContent implements ShouldQueue
 
             $content->count += $wordCount;
             $content->status = "end";
-            $content->tokenCount = $totalTokens;
+            $content->tokenCount += $totalTokens;
             $content->save();
 
 
@@ -198,7 +198,12 @@ class GenerateContent implements ShouldQueue
             }
             $ImagePrompt = $responseData['choices'][0]['message']['content'];
 
+            $promptTokens = $responseData['usage']['prompt_tokens'];
+            $completionTokens = $responseData['usage']['completion_tokens'];
+            $totalTokens = $responseData['usage']['total_tokens'];
+
             $content->image_prompt = $ImagePrompt;
+            $content->tokenCount += $totalTokens;
             $content->save();
 
 
