@@ -88,6 +88,9 @@ class ChatAiController extends Controller
             case 'shahrdari':
                 $assistant_id = "asst_SzvtHGbPC336RgcPy2svwfRM";
                 break;
+            case 'hesabdari_maliati':
+                $assistant_id = "asst_lOgPuDvqZGprKeNNoIOVxu7m";
+                break;
             default:
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
         }
