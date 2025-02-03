@@ -57,6 +57,7 @@ class HolooAiController extends Controller
 
         }
 
+        
         // ارسال درخواست به OpenAI
         $headers = [
             'Content-Type' => 'application/json',

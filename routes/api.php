@@ -43,9 +43,8 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/chat',[ChatAiController::class,'index']);
         Route::get('/get-image-chat/{chat_id}',[ChatAiController::class,'getImageChat']);
 
-
         //solo api
-        
+
         // ai holo
         Route::post('/chat/holoo',[HolooAiController::class,'index']);
 

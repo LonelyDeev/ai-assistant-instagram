@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
+    
     public function index(Request $request)
     {
         $items = $request->user()->transactions()->paginate(20);
