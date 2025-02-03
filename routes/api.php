@@ -32,6 +32,7 @@ Route::group(['prefix' => 'v1'], function () {
 
     // ai assistent instagram
         Route::get('/user', [UserController::class,'index']);
+        Route::get('/user/check-plan', [UserController::class,'checkPlan']);
         Route::get('/plans', [PlanController::class,'index']);
         Route::post('/buy-plans', [PlanController::class,'buyPlans']);
         Route::get('/buy-plans/zarinpal-verify', [PlanController::class, 'zarinpalVerifyApi'])->name('zarinpal_verify');
