@@ -20,7 +20,7 @@ class UserController extends Controller
     {
         $totalgeneratedword = Content::select('count')->where('vendor_id', $request->user()->id)->sum('count');
         $totalcontent = Content::where('vendor_id', $request->user()->id)->get()->count();
-        $dd=@helper::checkPlan($request->user()->id);
+        $dd=@helper::checkPlan($request->user()->id)->original;
 dd($dd);
     }
 }
