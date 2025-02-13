@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\ChatAiController;
 use App\Http\Controllers\Api\V1\HolooAiController;
 use App\Http\Controllers\Api\V1\SepidarAiController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,10 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('videos',function(){
+  $videos=DB::table('videos')->get();
+  return response()->json($videos);
+});
 Route::group(['prefix' => 'v1'], function () {
     Route::post('/login', [AuthController::class,'login']);
     Route::post('/verify-mobile', [AuthController::class,'verifyMobile']);
