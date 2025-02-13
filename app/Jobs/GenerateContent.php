@@ -121,7 +121,7 @@ class GenerateContent implements ShouldQueue
             $content->tokenCount += $totalTokens;
             $content->save();
 
-            $user = User::find(Auth::user()->id);
+            $user = User::find($content->vendor_id);
             //$user->totalwordcount = $user->totalwordcount + Str::of($request->input('content'))->wordCount();
             $user->totalwordcount += $totalTokens;
             $user->save();
