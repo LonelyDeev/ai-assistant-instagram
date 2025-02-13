@@ -292,4 +292,5 @@ return [
    'purchase' => 'خرید',
    'no_addon_installed'=> 'بدون نصب افزونه',
    'Creativity-level'=> 'سطح خلاقیت',
+   'tokenCount'=> 'توکن مصرفی',
 ];

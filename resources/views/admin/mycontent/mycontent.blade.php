@@ -23,7 +23,7 @@
                                         <td class="text-center">{{ trans('labels.title') }}</td>
                                         <td class="text-center">{{trans('labels.tool_name')}}</td>
                                         <td class="text-center">{{trans('labels.Creativity-level')}}</td>
-                                        <td class="text-center">{{trans('labels.word_count')}}</td>
+                                        <td class="text-center">{{trans('labels.tokenCount')}}</td>
                                         <td class="text-center">{{trans('labels.status')}}</td>
                                         <td class="text-center">{{trans('labels.created_at')}}</td>
 
@@ -44,7 +44,7 @@
                                             <td>{{ $content->title }}</td>
                                             <td class="text-center">{{ $content['tools_info']->name }}</td>
                                             <td class="text-center">{{ \App\helper\helper::Temperature($content->temperature) }}</td>
-                                            <td class="text-center">{{ $content->count }}</td>
+                                            <td class="text-center">{{ $content->tokenCount }}</td>
                                             <td class="text-center">
                                                 @if($content->status=="waiting")
                                                     <span class="badge text-bg-warning">در انتضار تکمیل محتوا</span>
