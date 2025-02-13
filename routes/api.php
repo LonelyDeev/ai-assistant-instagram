@@ -28,6 +28,7 @@ Route::get('videos',function(){
   return response()->json($videos);
 });
 
+
 Route::group(['prefix' => 'v1'], function () {
     Route::post('/login', [AuthController::class,'login']);
     Route::post('/verify-mobile', [AuthController::class,'verifyMobile']);
