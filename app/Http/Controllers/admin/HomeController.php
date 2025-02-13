@@ -70,7 +70,8 @@ class HomeController extends Controller
             return view('admin.dashboard', compact('totalrevenue', 'totalusers', 'totalplans', 'currentplan', 'revenue_year_list', 'userchart_year', 'revenue_lables', 'revenue_data', 'piechart_lables', 'piechart_data', 'totaltransaction'));
         }
         if (Auth::user()->type == 2) {
-            $totalgeneratedword = Content::select('count')->where('vendor_id', Auth::user()->id)->sum('count');
+           // $totalgeneratedword = Content::select('count')->where('vendor_id', Auth::user()->id)->sum('count');
+            $totalgeneratedword = Content::select('tokenCount')->where('vendor_id', Auth::user()->id)->sum('tokenCount');
             $totalcontent = Content::where('vendor_id', Auth::user()->id)->get()->count();
             $tools = Tools::all();
             $plan = null;
