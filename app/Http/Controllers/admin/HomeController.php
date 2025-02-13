@@ -222,6 +222,7 @@ class HomeController extends Controller
         $content->save();
 
         $user = User::find(Auth::user()->id);
+        //$user->totalwordcount = $user->totalwordcount + Str::of($request->input('content'))->wordCount();
         $user->totalwordcount = $user->totalwordcount + Str::of($request->input('content'))->wordCount();
         $user->save();
         return response()->json(['status' => 1, 'message' => trans('messages.success')], 200);

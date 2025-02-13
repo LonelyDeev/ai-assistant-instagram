@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\helper\helper;
 use App\Models\Content;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -119,7 +121,10 @@ class GenerateContent implements ShouldQueue
             $content->tokenCount += $totalTokens;
             $content->save();
 
-
+            $user = User::find(Auth::user()->id);
+            //$user->totalwordcount = $user->totalwordcount + Str::of($request->input('content'))->wordCount();
+            $user->totalwordcount += $totalTokens;
+            $user->save();
 
             //از جاب استفاده شده به جای استفاده متقیم
             //$this->GenerateImage($content, $translatedQuery);

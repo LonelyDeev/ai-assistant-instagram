@@ -138,7 +138,8 @@ class helper
         $vendordata = User::where('id', $id)->first();
         $checkplan = Transaction::where('vendor_id', $vendordata->id)->orderByDesc('id')->first();
 
-        $totalwordcount = Content::select('count')->where('vendor_id', $vendordata->id)->sum('count');
+        //$totalwordcount = Content::select('count')->where('vendor_id', $vendordata->id)->sum('count');
+        $totaltokencount = Content::select('tokenCount')->where('vendor_id', $vendordata->id)->sum('tokenCount');
 
         if ($vendordata->is_available == 2) {
             return response()->json(['status' => 2, 'message' => trans('messages.account_blocked_by_admin'), 'showclick' => "0", 'plan_message' => '', 'plan_date' => '', 'checklimit' => ''], 200);
@@ -217,8 +218,9 @@ class helper
             $wordlimit = User::find($id)->word_limit;
 
             $totalwordcount = Content::select('count')->where('vendor_id', $id)->sum('count');
+            $totaltokencount = Content::select('tokenCount')->where('vendor_id', $id)->sum('tokenCount');
 
-            $count = $wordlimit - $totalwordcount;
+            $count = $wordlimit - $totaltokencount;
             if ($count < 0) {
                 $count = 0;
             }

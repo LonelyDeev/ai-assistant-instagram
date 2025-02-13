@@ -19,7 +19,7 @@ class UserController extends Controller
 
     public function checkPlan(Request $request)
     {
-        $totalgeneratedword = Content::select('count')->where('vendor_id', $request->user()->id)->sum('count');
+        $totalgeneratedword = Content::select('tokenCount')->where('vendor_id', $request->user()->id)->sum('tokenCount');
         $totalcontent = Content::where('vendor_id', $request->user()->id)->get()->count();
         $original=@helper::checkPlan($request->user()->id)->original;
         $data = [

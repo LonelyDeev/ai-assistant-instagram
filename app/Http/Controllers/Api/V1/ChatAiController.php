@@ -22,7 +22,6 @@ class ChatAiController extends Controller
 
     public function index(Request $request)
     {
-        // اعتبارسنجی درخواست
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
@@ -53,28 +52,29 @@ class ChatAiController extends Controller
         } else {
             return response()->json(['message' => 'خطا در پردازش درخواست'], 500);
         }
+
     }
     private function generateText(Request $request)
     {
         $opAiKey = env('OPENAI_API_KEY');
         switch ($request->input('category')) {
             case 'blog':
-                $assistant_id = "asst_WVkXlpBICWGzmqZtFBrNytg6";
+                $assistant_id = "asst_WJIrOz6oAnM07pOIHscZG068";
                 break;
             case 'seo':
-                $assistant_id = "asst_xzwpySAbqPmMVP8uy8Xas9bq";
+                $assistant_id = "asst_l2kyJUrxsULeUUA4YXsAcQYq";
                 break;
             case 'translate':
-                $assistant_id = "asst_Z5ggRHM3qYMwKXJYilVF57dD";
+                $assistant_id = "asst_wOrCK2ovpfRN16uhcRO7evW3";
                 break;
             case 'travel':
-                $assistant_id = "asst_axncaxo2PKH42OrNk7GjTjuq";
+                $assistant_id = "asst_wUdMybjciNjTzrGsBYuDEd8T";
                 break;
             case 'cooking':
-                $assistant_id = "asst_IB9EW0eJtcyIOsb7jsdOpkkw";
+                $assistant_id = "asst_b5MsG33fBoG9BgD9wXIHURC2";
                 break;
             case 'holoo':
-                $assistant_id = "asst_csUG8UBzBusQ9fCp49BENpxv";
+                $assistant_id = "asst_wjsXlAxIgFCfCT0kcWh9fu4C";
                 break;
             case 'tamin':
                 $assistant_id = "asst_BfMuAxYyfDZErkvzNWoMAAxl";
@@ -83,12 +83,12 @@ class ChatAiController extends Controller
                 $assistant_id = "asst_tMHjw5sIGZOsB0AcYboZuOMW";
                 break;
             case 'sepidar':
-                $assistant_id = "asst_sXO9zoUVQaRBOY5XU23aCIIt";
+                $assistant_id = "asst_W7gjE3OUT2n9nzvHAA94Fn1x";
                 break;
             case 'shahrdari':
-                $assistant_id = "asst_SzvtHGbPC336RgcPy2svwfRM";
+                $assistant_id = "asst_ZenchXROVeFKvW9Lx9WIvus5";
                 break;
-            case 'hesabdari_maliati':
+            case 'hesabdari':
                 $assistant_id = "asst_lOgPuDvqZGprKeNNoIOVxu7m";
                 break;
             default:
@@ -105,6 +105,7 @@ class ChatAiController extends Controller
                 'Authorization' => 'Bearer ' . $opAiKey,
                 'OpenAI-Beta' => 'assistants=v2',
             ])->post('https://api.openai.com/v1/threads', []);
+
 
             if ($response->failed()) {
                 return response()->json(['error' => 'خطا در ایجاد thread', 'details' => $response->body()], 500);
@@ -129,6 +130,7 @@ class ChatAiController extends Controller
             'assistant_id' => $assistant_id,
             'openai_apikey' => $opAiKey,
         ]), 'application/json')->post('https://openai.webcomapipy.ir/chat');
+
 
         if ($response->failed()) {
             return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $response->body()], 500);
