@@ -399,6 +399,7 @@ class helper
                 $imageTokenEquivalent = $costPerImage / $costPerToken; // تبدیل هزینه تصویر به توکن
 
                 // اضافه کردن هزینه تصویر به مقدار کل توکن‌ها
+                $content->imageTokenCount += intval($imageTokenEquivalent);
                 $content->tokenCount += intval($imageTokenEquivalent);
 
                 $content->save();
