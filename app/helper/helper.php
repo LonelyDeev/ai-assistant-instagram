@@ -393,6 +393,14 @@ class helper
                 ]);
                 $content->count += 200;
                 $content->images_status = 'end';
+
+                $costPerToken = 0.002 / 1000; // هزینه هر توکن
+                $costPerImage = 10 / 4500; // هزینه هر تصویر ≈ 0.0022 دلار
+                $imageTokenEquivalent = $costPerImage / $costPerToken; // تبدیل هزینه تصویر به توکن
+
+                // اضافه کردن هزینه تصویر به مقدار کل توکن‌ها
+                $content->tokenCount += intval($imageTokenEquivalent);
+
                 $content->save();
             } else {
                 // اگر URL تصویر موجود نباشد

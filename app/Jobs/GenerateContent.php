@@ -152,6 +152,8 @@ class GenerateContent implements ShouldQueue
         }
     }
 
+
+    // از جاب تولید تصویر استفاده می شودو اینو فانکشن فعلا به استفاده است
     private function GenerateImage($content, $prompt = null)
     {
         if ($content->generate_image == "yes" and $content->images_status == "waiting") {

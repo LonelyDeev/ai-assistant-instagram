@@ -75,7 +75,12 @@ class GenerateImagePrompt implements ShouldQueue
             }
             $ImagePrompt = $responseData['choices'][0]['message']['content'];
 
+            $promptTokens = $responseData['usage']['prompt_tokens'];
+            $completionTokens = $responseData['usage']['completion_tokens'];
+            $totalTokens = $responseData['usage']['total_tokens'];
+
             $content->image_prompt = $ImagePrompt;
+            $content->tokenCount += $totalTokens;
             $content->save();
 
             //$url = 'https://queue.fal.run/fal-ai/flux-pro/v1.1-ultra';
