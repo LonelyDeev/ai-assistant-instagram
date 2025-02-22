@@ -39,7 +39,6 @@ class ChatAiController extends Controller
         $v = json_decode(json_encode($checkplan));
 
         if (@$v->original->status == 2) {
-            //return response()->json($v->original->message, 403);
             return $this->respondError($v->original->message);
         }
 
@@ -50,7 +49,7 @@ class ChatAiController extends Controller
 
 
         if($total_word > $word_limit){
-            return response()->json(['error' => 'محدودیت توکن شما به پایان رسیده است'], 403);
+            return $this->respondError('محدودیت توکن شما به پایان رسیده است');
         }
 
         $response = null;
