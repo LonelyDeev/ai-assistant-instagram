@@ -39,13 +39,10 @@ class ChatAiController extends Controller
         $v = json_decode(json_encode($checkplan));
 
         if (@$v->original->status == 2) {
-            return response()->json($v->original->message, 403);
+            //return response()->json($v->original->message, 403);
             return $this->respondError($v->original->message);
         }
-        $plan = [];
-        if (@helper::plandetail($request->user()->plan_id)) {
-            $plan = explode(',', @helper::plandetail($request->user()->plan_id)->tools_limit);
-        }
+
 
         $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
 
@@ -55,7 +52,6 @@ class ChatAiController extends Controller
         if($total_word > $word_limit){
             return response()->json(['error' => 'محدودیت کلمه'], 403);
         }
-       dd(@helper::plandetail($request->user()->plan_id)->tools_limit);
 
         $response = null;
         switch ($request->type) {
@@ -167,9 +163,7 @@ class ChatAiController extends Controller
         $wordCount = preg_match_all('/\p{L}+/u', $postContent);
 
         $responseData = $response->json();
-        $promptTokens = $responseData['usage']['prompt_tokens'];
-        $completionTokens = $responseData['usage']['completion_tokens'];
-        $totalTokens = $responseData['usage']['total_tokens'];
+        $tokensUsed = $responseData['usage']['total_tokens'] ?? null;
 
         $newChat = new Chat();
         $newChat->user_id = auth()->id();
@@ -179,7 +173,7 @@ class ChatAiController extends Controller
         $newChat->assistant_id = $assistant_id;
         $newChat->thread_id = $thread_id;
         $newChat->response = $response->json()['response'];
-        $newChat->count = $totalTokens;
+        $newChat->count = $tokensUsed;
         $newChat->save();
 
 
