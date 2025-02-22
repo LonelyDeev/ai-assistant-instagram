@@ -50,7 +50,7 @@ class ChatAiController extends Controller
 
 
         if($total_word > $word_limit){
-            return response()->json(['error' => 'محدودیت کلمه'], 403);
+            return response()->json(['error' => 'محدودیت توکن شما به پایان رسیده است'], 403);
         }
 
         $response = null;
