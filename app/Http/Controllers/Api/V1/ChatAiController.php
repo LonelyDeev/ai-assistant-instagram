@@ -35,7 +35,7 @@ class ChatAiController extends Controller
         ]);
 
 
-        $checkplan = helper::checkplan($request->user()->id);
+        $checkplan = helper::checkplan(auth()->id());
         $v = json_decode(json_encode($checkplan));
 
         if (@$v->original->status == 2) {
