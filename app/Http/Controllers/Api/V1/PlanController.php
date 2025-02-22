@@ -70,6 +70,10 @@ class PlanController extends Controller
 
         } else {
 
+            if (Transaction::where('vendor_id', $request->user()->id)->exists()) {
+                return $this->respondError('فقط برای اولین بار میتوانید از پلن رایگان استفاده کنید');
+            }
+
             $transaction = new Transaction();
 
             $transaction->vendor_id = $request->user()->id;
