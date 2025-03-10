@@ -36,16 +36,16 @@
                                         <td class="text-center">
                                             @if ($user->is_available == '1')
                                                 <a class="btn btn-sm btn-outline-success" href="javascript::void(0)"
-                                                    @if (env('Environment') == 'sendbox') onclick="myFunction()" @else onclick="statusupdate('{{ URL::to('admin/users/status-' . $user->slug . '/2') }}')" @endif><i class="fa-regular fa-check"></i>
+                                                    @if (env('Environment') == 'sendbox') onclick="myFunction()" @else onclick="statusupdate('{{ URL::to('admin/users/status-' . $user->id . '/2') }}')" @endif><i class="fa-regular fa-check"></i>
                                                 </a>
                                             @else
                                                 <a class="btn btn-sm btn-outline-danger" href="javascript::void(0)"
-                                                    @if (env('Environment') == 'sendbox') onclick="myFunction()" @else  onclick="statusupdate('{{ URL::to('admin/users/status-' . $user->slug . '/1') }}')" @endif><i class="fa-regular fa-xmark "></i>
+                                                    @if (env('Environment') == 'sendbox') onclick="myFunction()" @else  onclick="statusupdate('{{ URL::to('admin/users/status-' . $user->id . '/1') }}')" @endif><i class="fa-regular fa-xmark "></i>
                                                 </a>
                                             @endif
                                         </td>
                                         <td>
-                                            <a href="{{ URL::to('admin/users/edit-' . $user->slug) }}" class="btn btn-outline-info btn-sm"> <i
+                                            <a href="{{ URL::to('admin/users/edit-' . $user->id) }}" class="btn btn-outline-info btn-sm"> <i
                                                 class="fa-regular fa-pen-to-square"></i>
                                             </a>
                                         </td>

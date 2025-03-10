@@ -19,7 +19,7 @@ class UserController extends Controller
 
     public function edit(Request $request)
     {
-        $user = User::where('slug', $request->slug)->first();
+        $user = User::where('id', $request->id)->first();
         return view('admin.user.edit_user', compact('user'));
     }
     public function edit_vendorprofile(Request $request)

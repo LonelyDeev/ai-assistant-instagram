@@ -68,10 +68,10 @@ Route::group(['middleware' => 'adminmiddleware'], function () {
         // users
         Route::group(['prefix' => 'users'], function () {
             Route::get('', [UserController::class, 'view_users']);
-            Route::get('/edit-{slug}', [UserController::class, 'add']);
-            Route::get('/edit-{slug}', [UserController::class, 'edit']);
+            Route::get('/edit-{id}', [UserController::class, 'add']);
+            Route::get('/edit-{id}', [UserController::class, 'edit']);
             Route::post('/editprofile', [UserController::class, 'edit_vendorprofile']);
-            Route::get('/status-{slug}/{status}', [UserController::class, 'change_status']);
+            Route::get('/status-{id}/{status}', [UserController::class, 'change_status']);
         });
 
         // plan
