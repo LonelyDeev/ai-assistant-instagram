@@ -270,7 +270,7 @@ class PlanPricingController extends Controller
             $plan = PricingPlan::where('id', $request->plan_id)->first();
 
             $expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
-            if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date)->where('status','!=',3)->exists()) {
+            if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date)->whereIn('status',[1,2])->exists()) {
                 return redirect('/plan')->with('error',  'این پلن در لیست شما وجود دارد');
             }
 
