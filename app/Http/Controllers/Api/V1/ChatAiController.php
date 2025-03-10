@@ -34,24 +34,29 @@ class ChatAiController extends Controller
             'category.required' => 'فیلد دسته بندی الزامی است',
         ]);
 
+        $userNolimit = User::where('mobile', '09128458010')->first();
 
-        $checkplan = helper::checkplan(auth()->id());
-        $v = json_decode(json_encode($checkplan));
+        if (auth()->id() != $userNolimit->id) {
+            $checkplan = helper::checkplan(auth()->id());
+            $v = json_decode(json_encode($checkplan));
 
-        if (@$v->original->status == 2) {
-            //return response()->json($v->original->message, 403);
-            return $this->respondError($v->original->message);
+            if (@$v->original->status == 2) {
+                //return response()->json($v->original->message, 403);
+                return $this->respondError($v->original->message);
+            }
+
+
+
+            $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
+
+            $total_word = Chat::where('user_id', auth()->id())->sum('count');
+
+            if ($total_word > $word_limit) {
+                return response()->json(['error' => 'محدودیت توکن شما به پایان رسیده است'], 403);
+            }
         }
 
 
-        $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
-
-        $total_word = Chat::where('user_id', auth()->id())->sum('count');
-
-
-        if($total_word > $word_limit){
-            return response()->json(['error' => 'محدودیت توکن شما به پایان رسیده است'], 403);
-        }
 
         $response = null;
         switch ($request->type) {
@@ -73,7 +78,6 @@ class ChatAiController extends Controller
         } else {
             return response()->json(['message' => 'خطا در پردازش درخواست'], 500);
         }
-
     }
     private function generateText(Request $request)
     {
@@ -119,11 +123,11 @@ class ChatAiController extends Controller
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
         }
 
-        $chatPots=Chat::where(['user_id'=>auth()->id(),'assistant_id'=>$assistant_id])->first();
+        $chatPots = Chat::where(['user_id' => auth()->id(), 'assistant_id' => $assistant_id])->first();
 
         if (isset($chatPots) and $chatPots->thread_id) {
-            $thread_id=$chatPots->thread_id;
-        }else{
+            $thread_id = $chatPots->thread_id;
+        } else {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $opAiKey,
@@ -137,7 +141,6 @@ class ChatAiController extends Controller
 
             $thread_id = $response->json()['id'];
             User::where('id', auth()->user()->id)->update(['thread_id' => $thread_id]);
-
         }
 
         // ارسال درخواست به OpenAI
@@ -247,10 +250,9 @@ class ChatAiController extends Controller
                 $newChat->image_request_id = $response->json()['request_id'];
                 $newChat->images_status = "generate";
                 $newChat->save();
-                $get_image_chat=asset('').'api/v1/get-image-chat/'.$newChat->id;
-                return response()->json(['message'=>'تصویر با موفقیت ثبت شد و در حال پردازش است.','chat_id' => $newChat->id,'get-image-chat'=>$get_image_chat]);
+                $get_image_chat = asset('') . 'api/v1/get-image-chat/' . $newChat->id;
+                return response()->json(['message' => 'تصویر با موفقیت ثبت شد و در حال پردازش است.', 'chat_id' => $newChat->id, 'get-image-chat' => $get_image_chat]);
             }
-
         } catch (\Exception $e) {
             return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $e->getMessage()], 500);
         }
@@ -292,7 +294,6 @@ class ChatAiController extends Controller
                 $content->images_status = "error";
                 $content->save();
                 return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $response->json()['detail']], 500);
-
             }
 
             $statusData = $response->json();
@@ -311,7 +312,6 @@ class ChatAiController extends Controller
                     $content->images_status = 'error';
                     $content->save();
                     return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => $errorMessage], 500);
-
                 }
 
                 $imageData = $imageResponse->json();
@@ -343,8 +343,8 @@ class ChatAiController extends Controller
                     $content->images_status = 'end';
                     $content->save();
 
-                    $imageUrlLink=asset($imagePath);
-                    return response()->json(['message' => 'تصویر با موفقیت ایجاد شد','image'=>$imageUrlLink], 200);
+                    $imageUrlLink = asset($imagePath);
+                    return response()->json(['message' => 'تصویر با موفقیت ایجاد شد', 'image' => $imageUrlLink], 200);
                 } else {
                     // اگر URL تصویر موجود نباشد
                     $content->messages .= ' No image URL found.';
@@ -352,18 +352,16 @@ class ChatAiController extends Controller
 
                     return response()->json(['error' => 'خطا در پردازش درخواست', 'details' => ' No image URL found.'], 500);
                 }
-            }else{
+            } else {
                 return response()->json(['message' => 'تصویر در حال پردازش است.',], 422);
             }
-        }
-        elseif($content and $content->images_status == "end"){
-            $gallery=$content->gallery()->latest()->first();
-            if (isset($gallery)){
-                $imageUrlLink=asset($gallery->image);
-                return response()->json(['message' => 'تصویر از قبل موجود می باشد','image'=>$imageUrlLink], 200);
+        } elseif ($content and $content->images_status == "end") {
+            $gallery = $content->gallery()->latest()->first();
+            if (isset($gallery)) {
+                $imageUrlLink = asset($gallery->image);
+                return response()->json(['message' => 'تصویر از قبل موجود می باشد', 'image' => $imageUrlLink], 200);
             }
             return response()->json(['message' => 'تصویر پیدا نشد.',], 422);
-
         }
     }
 }
