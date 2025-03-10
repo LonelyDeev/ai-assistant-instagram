@@ -28,7 +28,7 @@
                                         <td>@php
                                             echo $i++;
                                         @endphp</td>
-                                        <td><img src="{{ asset($user->image) }}" height="50" width="50"
+                                        <td><img src="{{ $user->image ? asset($user->image) : asset('admin-assets/images/about/default.png') }}" height="50" width="50"
                                                 alt=""></td>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
