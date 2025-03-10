@@ -24,10 +24,10 @@ class UserController extends Controller
     }
     public function edit_vendorprofile(Request $request)
     {
-       if(Auth::user()->type == 1)
-       {
-          $request->id = 1;
-       }
+    //    if(Auth::user()->type == 1)
+    //    {
+    //       $request->id = 1;
+    //    }
 
         if(Auth::user()->type == 2){
             $request->validate([
@@ -78,13 +78,8 @@ class UserController extends Controller
             ]);
         }
 
-        $check_slug = User::where('slug', Str::slug($request->name, '-'))->first();
-        if (!empty($check_slug)) {
-            $last_id = User::select('id')->orderByDesc('id')->first();
-            $slug = Str::slug($request->name . ' ' . $last_id->id, '-');
-        } else {
-            $slug = Str::slug($request->name, '-');
-        }
+        $slug = $this->generateUniqueSlug($request->name,$request->id);
+
         $edituser = User::where('id', $request->id)->first();
         $edituser->slug = $slug;
         $edituser->name = $request->name;
@@ -112,7 +107,7 @@ class UserController extends Controller
         $edituser->update();
         if(Auth::user()->type == 1)
         {
-           return redirect()->back()->with('success', trans('messages.success'));
+            return redirect('/admin/users')->with('success', trans('messages.success'));
 
         }
         else
@@ -179,4 +174,18 @@ class UserController extends Controller
         $getprivacypolicy = helper::appdata('')->privacy_content;
         return view('admin.other.privacypolicy',compact('getprivacypolicy'));
     }
+
+    private function generateUniqueSlug($name, $userId = null)
+{
+    $baseSlug = Str::slug($name, '-'); // تولید اسلاگ پایه
+    $slug = $baseSlug;
+    $counter = 1;
+
+    // بررسی وجود اسلاگ در دیتابیس (به جز خود کاربر در حالت آپدیت)
+    while (User::where('slug', $slug)->where('id', '!=', $userId)->exists()) {
+        $slug = $baseSlug . '-' . Str::random(5); // اضافه کردن رشته تصادفی
+    }
+
+    return $slug;
+}
 }

@@ -28,6 +28,15 @@
                 <span>{{ trans('labels.subscription_plans') }}</span>
             </a>
         </li>
+
+        <li class="nav-item mb-2 fs-7">
+            <a class="nav-link  d-flex rounded {{ request()->is('admin/chatTool*') ? 'active' : '' }}" aria-current="page"
+                href="{{ URL::to('/admin/chatTool') }}">
+                <i class="fa-solid fa-medal"></i>
+                <span>ابزارهای چت بات</span>
+            </a>
+        </li>
+
         <li class="nav-item mb-2 fs-7">
             <a class="nav-link  d-flex rounded {{ request()->is('admin/payment') ? 'active' : '' }}"
                 aria-current="page" href="{{ URL::to('/admin/payment') }}">

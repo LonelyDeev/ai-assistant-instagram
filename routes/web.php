@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\HomeController;
 use App\Http\Controllers\admin\AuthController;
+use App\Http\Controllers\admin\ChatToolController;
 use App\Http\Controllers\admin\OtherController;
 use App\Http\Controllers\admin\PaymentController;
 use App\Http\Controllers\admin\PlanPricingController;
@@ -91,6 +92,9 @@ Route::group(['middleware' => 'adminmiddleware'], function () {
         });
 
         // transaction
+        Route::resource('chatTool', ChatToolController::class);
+
+
         Route::get('/transaction', [TransactionController::class, 'index']);
         Route::get('/transaction-{id}-{status}', [TransactionController::class, 'status']);
 

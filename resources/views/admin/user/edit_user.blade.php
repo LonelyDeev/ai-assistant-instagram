@@ -14,11 +14,11 @@
                     <div class="card-body">
                         <form action="{{ Auth::user()->type == 1 ? URL::to('/admin/users/editprofile') : URL::to('/editprofile')  }}" method="post" enctype="multipart/form-data">
                             @csrf
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label class="form-label">کلید token</label>
-                                <input type="text" class="form-control" disabled value="{{$user->token_key}}" placeholder="name" required>
+                                <input type="text" class="form-control" disabled value="{{@$user->token_key}}" placeholder="name" required>
 
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 <input type="hidden" value="{{$user->id}}" name="id">
                                 <label class="form-label">{{trans('labels.name')}}<span class="text-danger"> * </span></label>
@@ -41,13 +41,13 @@
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                             </div>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label class="form-label">{{trans('labels.api_key')}}<span class="text-danger"> * </span></label>
                                 <input type="text" class="form-control" style="text-align: left" name="apiKey" value="{{old('apiKey') ?: $user->apiKey}}" placeholder="کلید Api" required>
                                 @error('apiKey')
                                 <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                            </div>
+                            </div> --}}
                             <div class="form-group">
                                 <label class="form-label">{{trans('labels.image')}} (250 x 250) </label>
                                 <input type="file" class="form-control" name="profile">

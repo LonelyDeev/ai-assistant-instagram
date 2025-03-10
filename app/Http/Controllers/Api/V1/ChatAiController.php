@@ -24,10 +24,11 @@ class ChatAiController extends Controller
 
     public function index(Request $request)
     {
+        $categories = Tools::where('type','chat')->pluck('slug')->implode(',');
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
-            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking,holoo,tamin,laboroffice,sepidar,shahrdari,hesabdari,zaraban',
+            'category' => "required_if:type,chat|in:$categories",
         ], [
             'user_query.required' => 'فیلد سوال الزامی است',
             'type.required' => 'نوع درخواست الزامی است',
@@ -46,7 +47,6 @@ class ChatAiController extends Controller
             }
 
 
-
             $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
 
             $total_word = Chat::where('user_id', auth()->id())->sum('count');
@@ -55,7 +55,6 @@ class ChatAiController extends Controller
                 return response()->json(['error' => 'محدودیت توکن شما به پایان رسیده است'], 403);
             }
         }
-
 
 
         $response = null;
@@ -82,47 +81,13 @@ class ChatAiController extends Controller
     private function generateText(Request $request)
     {
         $opAiKey = env('OPENAI_API_KEY');
-        switch ($request->input('category')) {
-            case 'blog':
-                $assistant_id = "asst_WJIrOz6oAnM07pOIHscZG068";
-                break;
-            case 'seo':
-                $assistant_id = "asst_l2kyJUrxsULeUUA4YXsAcQYq";
-                break;
-            case 'translate':
-                $assistant_id = "asst_wOrCK2ovpfRN16uhcRO7evW3";
-                break;
-            case 'travel':
-                $assistant_id = "asst_wUdMybjciNjTzrGsBYuDEd8T";
-                break;
-            case 'cooking':
-                $assistant_id = "asst_b5MsG33fBoG9BgD9wXIHURC2";
-                break;
-            case 'holoo':
-                $assistant_id = "asst_wjsXlAxIgFCfCT0kcWh9fu4C";
-                break;
-            case 'tamin':
-                $assistant_id = "asst_BfMuAxYyfDZErkvzNWoMAAxl";
-                break;
-            case 'laboroffice':
-                $assistant_id = "asst_tMHjw5sIGZOsB0AcYboZuOMW";
-                break;
-            case 'sepidar':
-                $assistant_id = "asst_W7gjE3OUT2n9nzvHAA94Fn1x";
-                break;
-            case 'shahrdari':
-                $assistant_id = "asst_ZenchXROVeFKvW9Lx9WIvus5";
-                break;
-            case 'hesabdari':
-                $assistant_id = "asst_lOgPuDvqZGprKeNNoIOVxu7m";
-                break;
-            case 'zaraban':
-                $assistant_id = "asst_A4EEnFcmfFcOtpUG8aAZU1us";
-                break;
-            default:
-                return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
-        }
+        $toolExists = Tools::where('slug', $request->input('category'))->first();
 
+        if (!$toolExists) {
+            return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
+        }
+        $assistant_id=$toolExists->assistant_id;
+        
         $chatPots = Chat::where(['user_id' => auth()->id(), 'assistant_id' => $assistant_id])->first();
 
         if (isset($chatPots) and $chatPots->thread_id) {
