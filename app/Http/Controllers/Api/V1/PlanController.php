@@ -40,7 +40,7 @@ class PlanController extends Controller
                 return $this->respondError('مبلغ نمی تواند کمتر از 1000 تومان باشد');
             }
             $expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
-            if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date )->exists()) {
+            if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date)->where('status','!=','3')->exists()) {
                 return $this->respondError('این پلن در لیست شما وجود دارد');
             }
 
