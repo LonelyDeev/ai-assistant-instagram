@@ -24,7 +24,7 @@ class ChatAiController extends Controller
 
     public function index(Request $request)
     {
-        $categories = Tools::where('type','chat')->pluck('slug')->implode(',');
+        $categories = Tools::where(['type'=>'chat','active'=>1])->pluck('slug')->implode(',');
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
@@ -81,7 +81,7 @@ class ChatAiController extends Controller
     private function generateText(Request $request)
     {
         $opAiKey = env('OPENAI_API_KEY');
-        $toolExists = Tools::where('slug', $request->input('category'))->first();
+        $toolExists = Tools::where(['active'=>1,'slug'=> $request->input('category')])->first();
 
         if (!$toolExists) {
             return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
