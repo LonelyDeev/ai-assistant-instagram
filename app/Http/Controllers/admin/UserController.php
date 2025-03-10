@@ -28,9 +28,6 @@ class UserController extends Controller
     }
     public function edit_vendorprofile(Request $request)
     {
-        if (Auth::user()->type == 1) {
-            $request->id = 1;
-        }
 
         if (Auth::user()->type == 2) {
             $request->validate([
@@ -64,6 +61,7 @@ class UserController extends Controller
                 }
             }
         } else {
+
             $request->validate([
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email,' . $request->id,
