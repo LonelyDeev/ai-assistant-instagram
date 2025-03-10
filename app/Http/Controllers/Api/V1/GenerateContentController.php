@@ -24,27 +24,30 @@ class GenerateContentController extends Controller
             'createImage.required' => 'فیلد درخواست تصویر الزامی است',
         ]);
 
-        $checkplan = helper::checkplan($request->user()->id);
-        $v = json_decode(json_encode($checkplan));
+        $userNolimit = ['09128458010'];
 
-        if (@$v->original->status == 2) {
-            return $this->respondError($v->original->message);
-        }
-        $gettoolingo = Tools::where('id', $request->tool_id)->first();
-        $plan = [];
-        if (@helper::plandetail($request->user()->plan_id)) {
-            $plan = explode(',', @helper::plandetail($request->user()->plan_id)->tools_limit);
-        }
+        if (!in_array(auth()->user()->mobile, $userNolimit)) {
+            $checkplan = helper::checkplan($request->user()->id);
+            $v = json_decode(json_encode($checkplan));
 
-        if (!in_array($gettoolingo->id, $plan)) {
-            return $this->respondError(trans('messages.InactiveTools'));
-        }
+            if (@$v->original->status == 2) {
+                return $this->respondError($v->original->message);
+            }
+            $gettoolingo = Tools::where('id', $request->tool_id)->first();
+            $plan = [];
+            if (@helper::plandetail($request->user()->plan_id)) {
+                $plan = explode(',', @helper::plandetail($request->user()->plan_id)->tools_limit);
+            }
 
-        $tools = Tools::where('id', $request->tool_id)->first();
-        if (!$tools) {
-            return $this->respondError(trans('messages.InactiveTools'));
-        }
+            if (!in_array($gettoolingo->id, $plan)) {
+                return $this->respondError(trans('messages.InactiveTools'));
+            }
 
+            $tools = Tools::where('id', $request->tool_id)->first();
+            if (!$tools) {
+                return $this->respondError(trans('messages.InactiveTools'));
+            }
+        }
         $content = new Content();
         $content->title = $request->prompt;
         $content->slug = helper::make_slug($request->prompt);

@@ -35,9 +35,9 @@ class ChatAiController extends Controller
             'category.required' => 'فیلد دسته بندی الزامی است',
         ]);
 
-        $userNolimit = User::where('mobile', '09128458010')->first();
+        $userNolimit=['09128458010'];
 
-        if (auth()->id() != $userNolimit->id) {
+        if (!in_array(auth()->user()->mobile, $userNolimit)) {
             $checkplan = helper::checkplan(auth()->id());
             $v = json_decode(json_encode($checkplan));
 
@@ -87,7 +87,7 @@ class ChatAiController extends Controller
             return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
         }
         $assistant_id=$toolExists->assistant_id;
-        
+
         $chatPots = Chat::where(['user_id' => auth()->id(), 'assistant_id' => $assistant_id])->first();
 
         if (isset($chatPots) and $chatPots->thread_id) {
