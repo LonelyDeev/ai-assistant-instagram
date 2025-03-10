@@ -27,7 +27,7 @@ class ChatAiController extends Controller
         $request->validate([
             'user_query' => 'required|string|max:500',
             'type' => 'required|in:image,chat,voice',
-            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking,holoo,tamin,laboroffice,sepidar,shahrdari',
+            'category' => 'required_if:type,chat|in:blog,seo,translate,travel,cooking,holoo,tamin,laboroffice,sepidar,shahrdari,hesabdari,zaraban',
         ], [
             'user_query.required' => 'فیلد سوال الزامی است',
             'type.required' => 'نوع درخواست الزامی است',
@@ -39,6 +39,7 @@ class ChatAiController extends Controller
         $v = json_decode(json_encode($checkplan));
 
         if (@$v->original->status == 2) {
+            //return response()->json($v->original->message, 403);
             return $this->respondError($v->original->message);
         }
 
@@ -49,7 +50,7 @@ class ChatAiController extends Controller
 
 
         if($total_word > $word_limit){
-            return $this->respondError('محدودیت توکن شما به پایان رسیده است');
+            return response()->json(['error' => 'محدودیت توکن شما به پایان رسیده است'], 403);
         }
 
         $response = null;
@@ -110,6 +111,9 @@ class ChatAiController extends Controller
                 break;
             case 'hesabdari':
                 $assistant_id = "asst_lOgPuDvqZGprKeNNoIOVxu7m";
+                break;
+            case 'zaraban':
+                $assistant_id = "asst_A4EEnFcmfFcOtpUG8aAZU1us";
                 break;
             default:
                 return response()->json(['message' => 'دسته‌بندی نامعتبر است'], 422);
