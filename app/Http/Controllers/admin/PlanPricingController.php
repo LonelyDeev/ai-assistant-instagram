@@ -269,6 +269,12 @@ class PlanPricingController extends Controller
         try {
             $plan = PricingPlan::where('id', $request->plan_id)->first();
 
+            $expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
+            if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date )->exists()) {
+                return $this->respondError('این پلن در لیست شما وجود دارد');
+            }
+
+            
             $checkuser = User::find(Auth::user()->id);
             $checkuser->plan_id = $plan->id;
             $checkuser->purchase_amount = $plan->price;
