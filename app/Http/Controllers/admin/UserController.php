@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\admin;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -8,7 +10,9 @@ use App\helper\helper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use OpenAI;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+
 class UserController extends Controller
 {
     public function view_users()
@@ -24,12 +28,11 @@ class UserController extends Controller
     }
     public function edit_vendorprofile(Request $request)
     {
-    //    if(Auth::user()->type == 1)
-    //    {
-    //       $request->id = 1;
-    //    }
+        if (Auth::user()->type == 1) {
+            $request->id = 1;
+        }
 
-        if(Auth::user()->type == 2){
+        if (Auth::user()->type == 2) {
             $request->validate([
                 'name' => 'required',
                 'apiKey' => 'required',
@@ -48,21 +51,19 @@ class UserController extends Controller
 
             try {
                 $client = OpenAi::client($request->apiKey);
-                $client->completions()->create( [
+                $client->completions()->create([
                     "model" => 'gpt-3.5-turbo-instruct',
                 ]);
-
-            }catch (\Throwable $ex){
-                if ($ex->getMessage()=="Incorrect API key provided: ".$request->apiKey.". You can find your API key at https://platform.openai.com/account/api-keys."){
-                    return back()->withErrors(["apiKey" =>trans('messages.invalid_api')])->withInput();
-                }
-                elseif ($ex->getMessage()=="You exceeded your current quota, please check your plan and billing details."){
-                    return back()->withErrors(["apiKey" =>trans('messages.invalid_api_maximum')])->withInput();
-                }else{
-                    return back()->withErrors(["apiKey" =>$ex->getMessage()])->withInput();
+            } catch (\Throwable $ex) {
+                if ($ex->getMessage() == "Incorrect API key provided: " . $request->apiKey . ". You can find your API key at https://platform.openai.com/account/api-keys.") {
+                    return back()->withErrors(["apiKey" => trans('messages.invalid_api')])->withInput();
+                } elseif ($ex->getMessage() == "You exceeded your current quota, please check your plan and billing details.") {
+                    return back()->withErrors(["apiKey" => trans('messages.invalid_api_maximum')])->withInput();
+                } else {
+                    return back()->withErrors(["apiKey" => $ex->getMessage()])->withInput();
                 }
             }
-        }else{
+        } else {
             $request->validate([
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email,' . $request->id,
@@ -78,40 +79,51 @@ class UserController extends Controller
             ]);
         }
 
-        $slug = $this->generateUniqueSlug($request->name,$request->id);
+        $slug = $this->generateUniqueSlug($request->name, $request->id);
 
         $edituser = User::where('id', $request->id)->first();
         $edituser->slug = $slug;
         $edituser->name = $request->name;
         $edituser->email = $request->email;
         $edituser->mobile = $request->mobile;
-        if(Auth::user()->type == 2){
+        if (Auth::user()->type == 2) {
             $edituser->apiKey = $request->apiKey;
         }
         $file = $request->file('profile');
-        if($file){
-            $name = rand(1,99999).time().'_'.$file->getClientOriginalName();
-            $image = Image::make($file);
-            $image->resize(210, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            if(!is_dir('admin-assets/images/profile/' . Auth::id())){
-                mkdir("admin-assets/images/profile/". Auth::id());
+
+        if ($file) {
+            if (!empty($edituser->image) && file_exists(public_path($edituser->image))) {
+                if (is_file(public_path($edituser->image))) {
+                    unlink(public_path($edituser->image));
+                }
             }
-            $image->save('admin-assets/images/profile/' . Auth::id() .'/'. $name);
 
-            ///////////// save image in table /////////////
-            $edituser->image = Auth::id().'/'.$name;
-            ///////////// save image in table /////////////
+            $name = rand(1, 99999) . time() . '_' . $file->getClientOriginalName();
+
+            // ایجاد نمونه از ImageManager با درایور GD
+            $manager = new ImageManager(new GdDriver()); // یا از 'ImagickDriver' استفاده کنید
+
+            // خواندن فایل و تغییر اندازه
+            $image = $manager->read($file);
+            $image = $image->scale(width: 210);
+
+            // ساخت مسیر ذخیره‌سازی
+            $directory = public_path('storage/uploads/images/profile/' . Auth::id());
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true);
+            }
+
+            // ذخیره تصویر در مسیر مشخص‌شده
+            $image->save($directory . '/' . $name);
+
+            // ذخیره مسیر تصویر در دیتابیس
+            $edituser->image = 'storage/uploads/images/profile/' . Auth::id() . '/' . $name;
         }
+
         $edituser->update();
-        if(Auth::user()->type == 1)
-        {
+        if (Auth::user()->type == 1) {
             return redirect('/admin/users')->with('success', trans('messages.success'));
-
-        }
-        else
-        {
+        } else {
             return redirect('/index')->with('success', trans('messages.success'));
         }
     }
@@ -143,11 +155,9 @@ class UserController extends Controller
                     $changepassword = User::where('id', Auth::user()->id)->first();
                     $changepassword->password = Hash::make($request->new_password);
                     $changepassword->update();
-                    if(Auth::user()->type == 1)
-                    {
+                    if (Auth::user()->type == 1) {
                         return redirect('/admin/settings')->with('success',  trans('messages.success'));
-                    }
-                    else{
+                    } else {
                         return redirect('/index')->with('success',  trans('messages.success'));
                     }
                 } else {
@@ -162,30 +172,30 @@ class UserController extends Controller
     {
 
         $getaboutus = helper::appdata('')->about_content;
-        return view('admin.other.aboutus',compact('getaboutus'));
+        return view('admin.other.aboutus', compact('getaboutus'));
     }
     public function termscondition(Request $request)
     {
         $gettermscondition = helper::appdata('')->terms_content;
-        return view('admin.other.termscondition',compact('gettermscondition'));
+        return view('admin.other.termscondition', compact('gettermscondition'));
     }
     public function privacypolicy(Request $request)
     {
         $getprivacypolicy = helper::appdata('')->privacy_content;
-        return view('admin.other.privacypolicy',compact('getprivacypolicy'));
+        return view('admin.other.privacypolicy', compact('getprivacypolicy'));
     }
 
     private function generateUniqueSlug($name, $userId = null)
-{
-    $baseSlug = Str::slug($name, '-'); // تولید اسلاگ پایه
-    $slug = $baseSlug;
-    $counter = 1;
+    {
+        $baseSlug = Str::slug($name, '-'); // تولید اسلاگ پایه
+        $slug = $baseSlug;
+        $counter = 1;
 
-    // بررسی وجود اسلاگ در دیتابیس (به جز خود کاربر در حالت آپدیت)
-    while (User::where('slug', $slug)->where('id', '!=', $userId)->exists()) {
-        $slug = $baseSlug . '-' . Str::random(5); // اضافه کردن رشته تصادفی
+        // بررسی وجود اسلاگ در دیتابیس (به جز خود کاربر در حالت آپدیت)
+        while (User::where('slug', $slug)->where('id', '!=', $userId)->exists()) {
+            $slug = $baseSlug . '-' . Str::random(5); // اضافه کردن رشته تصادفی
+        }
+
+        return $slug;
     }
-
-    return $slug;
-}
 }

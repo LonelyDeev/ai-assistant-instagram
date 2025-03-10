@@ -28,7 +28,7 @@
                                         <td>@php
                                             echo $i++;
                                         @endphp</td>
-                                        <td><img src="{{ helper::image_path($user->image) }}" height="50" width="50"
+                                        <td><img src="{{ asset($user->image) }}" height="50" width="50"
                                                 alt=""></td>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>

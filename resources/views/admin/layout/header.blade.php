@@ -9,7 +9,7 @@
 
             <div class="dropwdown d-inline-block">
                 <button class="btn header-item" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ helper::image_path(Auth::user()->image) }}">
+                    <img src="{{ asset(Auth::user()->image) }}">
                     <span class="d-none d-xxl-inline-block d-xl-inline-block ms-1 {{ Session::get('theme') == 'dark' ? 'text-white' : '' }}">{{ Auth::user()->name }}</span>
                     <i class="fa-regular fa-angle-down d-none d-xxl-inline-block d-xl-inline-block"></i>
                 </button>
