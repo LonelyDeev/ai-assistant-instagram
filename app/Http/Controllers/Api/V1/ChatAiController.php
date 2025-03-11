@@ -46,6 +46,15 @@ class ChatAiController extends Controller
                 return $this->respondError($v->original->message);
             }
 
+            $gettoolingo = Tools::where(['active'=>1,'slug'=> $request->input('category')])->first();
+            $plan = [];
+            if (@helper::plandetail($request->user()->plan_id)) {
+                $plan = explode(',', @helper::plandetail($request->user()->plan_id)->tools_limit);
+            }
+
+            if (!in_array($gettoolingo->id, $plan)) {
+                return $this->respondError(trans('messages.InactiveTools'));
+            }
 
             $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
 
