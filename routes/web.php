@@ -177,6 +177,9 @@ Route::get('/clear-cache', function () {
     return "تمام کش‌ها با موفقیت پاک شدند!";
 });
 
+Route::get('refresh-csrf', function () {
+    return csrf_token();
+})->name('csrf');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
