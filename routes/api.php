@@ -62,23 +62,6 @@ Route::group(['prefix' => 'v1'], function () {
         Route::post('/logout', [AuthController::class,'logout']);
     });
 
-
-
-    Route::get('{key}-refresh-csrf', function ($key) {
-        // بررسی وجود key در جدول apikeys
-        $exists = DB::table('apikeys')->where('key', $key)->where('is_active',1)->exists();
-
-        if ($exists) {
-            return response()->json([
-                'csrf_token' => csrf_token()
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Invalid API Key'
-        ], 403);
-    })->name('csrf');
-
 });
 
 
