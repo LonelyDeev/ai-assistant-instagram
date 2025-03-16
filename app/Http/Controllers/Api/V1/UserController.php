@@ -8,6 +8,7 @@ use App\Http\Resources\Api\V1\User\UserResource;
 use App\Http\Resources\CustomResource;
 use App\Models\Chat;
 use App\Models\Content;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,6 +29,10 @@ class UserController extends Controller
 
         $original = optional(@helper::checkPlan($request->user()->id))->original;
 
+        $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
+
+        $totalCount=(int)$totalgeneratedword + (int)$totalgeneratedChat;
+        $totalContent=(int)$totalcontent + (int)$totalcontentChat;
         $data = [
             'content' => [
                 'totalgeneratedCount' => (int)$totalgeneratedword,
@@ -38,8 +43,10 @@ class UserController extends Controller
                 'totalcontent' => (int)$totalcontentChat,
             ],
             'original' => $original,
-            'totalCount' => $totalgeneratedword + $totalgeneratedChat,
-            'totalContent' => $totalcontent + $totalcontentChat,
+            'totalCount' => $totalCount,
+            'totalContent' => $totalContent,
+
+            'remaining'=> $word_limit - $totalCount,
         ];
 
         return $this->respondWithResource(new CustomResource($data));
