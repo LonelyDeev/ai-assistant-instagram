@@ -44,7 +44,7 @@ class UserController extends Controller
             ],
             'original' => $original,
 
-            'totalContent' => $totalContent,
+            'contentCreated' => $totalContent,
 
             'limit' => (int)$word_limit,
             'totalCount' => $totalCount,
