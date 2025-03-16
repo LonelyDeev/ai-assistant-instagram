@@ -46,6 +46,7 @@ class UserController extends Controller
             'totalCount' => $totalCount,
             'totalContent' => $totalContent,
 
+            'limit'=> (int)$word_limit,
             'remaining'=> $word_limit - $totalCount,
         ];
 
