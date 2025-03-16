@@ -31,8 +31,8 @@ class UserController extends Controller
 
         $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
 
-        $totalCount=(int)$totalgeneratedword + (int)$totalgeneratedChat;
-        $totalContent=(int)$totalcontent + (int)$totalcontentChat;
+        $totalCount = (int)$totalgeneratedword + (int)$totalgeneratedChat;
+        $totalContent = (int)$totalcontent + (int)$totalcontentChat;
         $data = [
             'content' => [
                 'totalgeneratedCount' => (int)$totalgeneratedword,
@@ -46,11 +46,10 @@ class UserController extends Controller
             'totalCount' => $totalCount,
             'totalContent' => $totalContent,
 
-            'limit'=> (int)$word_limit,
-            'remaining'=> $word_limit - $totalCount,
+            'limit' => (int)$word_limit,
+            'remaining' => $word_limit - $totalCount,
         ];
 
         return $this->respondWithResource(new CustomResource($data));
-
     }
 }
