@@ -37,9 +37,9 @@ class UserController extends Controller
                 'totalgeneratedCount' => $totalgeneratedChat,
                 'totalcontent' => $totalcontentChat,
             ],
+            'original' => $original,
             'totalCount' => $totalgeneratedword + $totalgeneratedChat,
             'totalContent' => $totalcontent + $totalcontentChat,
-            'original' => $original,
         ];
 
         return $this->respondWithResource(new CustomResource($data));
