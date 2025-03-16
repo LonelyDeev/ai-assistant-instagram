@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\helper\helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\Plan\PlansCollection;
+use App\Models\Chat;
 use App\Models\Payment;
 use App\Models\PricingPlan;
 use App\Models\Transaction;
@@ -40,8 +41,16 @@ class PlanController extends Controller
                 return $this->respondError('مبلغ نمی تواند کمتر از 1000 تومان باشد');
             }
             $expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
+
             if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date)->where('status','!=',3)->exists()) {
-                return $this->respondError('این پلن در لیست شما وجود دارد');
+                $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
+
+                $total_word = Chat::where('user_id', auth()->id())->sum('count');
+
+                if ($total_word <= $word_limit) {
+                    return $this->respondError('این پلن در لیست شما وجود دارد');
+                }
+
             }
 
             if ($request->gateway == "zarinpal") {
