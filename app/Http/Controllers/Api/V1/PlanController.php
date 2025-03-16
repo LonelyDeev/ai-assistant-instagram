@@ -48,7 +48,7 @@ class PlanController extends Controller
                 $total_word = Chat::where('user_id', auth()->id())->sum('count');
 
                 if ($total_word <= $word_limit) {
-                    return $this->respondError('این پلن در لیست شما وجود دارد');
+                    return $this->respondError('یک پلن در لیست شما وجود دارد');
                 }
 
             }

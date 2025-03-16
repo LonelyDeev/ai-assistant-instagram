@@ -277,7 +277,7 @@ class PlanPricingController extends Controller
                 $total_word = Chat::where('user_id', auth()->id())->sum('count');
 
                 if ($total_word <= $word_limit) {
-                    return redirect('/plan')->with('error',  'این پلن در لیست شما وجود دارد');
+                    return redirect('/plan')->with('error',  'یک پلن در لیست شما وجود دارد');
                 }
 
             }
