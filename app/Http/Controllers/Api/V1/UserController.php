@@ -30,12 +30,12 @@ class UserController extends Controller
 
         $data = [
             'content' => [
-                'totalgeneratedCount' => $totalgeneratedword,
-                'totalcontent' => $totalcontent,
+                'totalgeneratedCount' => (int)$totalgeneratedword,
+                'totalcontent' => (int)$totalcontent,
             ],
             'chat' => [
-                'totalgeneratedCount' => $totalgeneratedChat,
-                'totalcontent' => $totalcontentChat,
+                'totalgeneratedCount' => (int)$totalgeneratedChat,
+                'totalcontent' => (int)$totalcontentChat,
             ],
             'original' => $original,
             'totalCount' => $totalgeneratedword + $totalgeneratedChat,
