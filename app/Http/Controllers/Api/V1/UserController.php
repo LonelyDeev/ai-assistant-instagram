@@ -6,6 +6,7 @@ use App\helper\helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\User\UserResource;
 use App\Http\Resources\CustomResource;
+use App\Models\Chat;
 use App\Models\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,12 +20,25 @@ class UserController extends Controller
 
     public function checkPlan(Request $request)
     {
-        $totalgeneratedword = Content::select('tokenCount')->where('vendor_id', $request->user()->id)->sum('tokenCount');
-        $totalcontent = Content::where('vendor_id', $request->user()->id)->get()->count();
-        $original=@helper::checkPlan($request->user()->id)->original;
+        $totalgeneratedword = Content::where('vendor_id', $request->user()->id)->sum('tokenCount') ?? 0;
+        $totalcontent = Content::where('vendor_id', $request->user()->id)->count();
+
+        $totalgeneratedChat = Chat::where('user_id', $request->user()->id)->sum('count') ?? 0;
+        $totalcontentChat = Chat::where('user_id', $request->user()->id)->count();
+
+        $original = optional(@helper::checkPlan($request->user()->id))->original;
+
         $data = [
-            'totalgeneratedword' => $totalgeneratedword,
-            'totalcontent' => $totalcontent,
+            'content' => [
+                'totalgeneratedCount' => $totalgeneratedword,
+                'totalcontent' => $totalcontent,
+            ],
+            'chat' => [
+                'totalgeneratedCount' => $totalgeneratedChat,
+                'totalcontent' => $totalcontentChat,
+            ],
+            'totalCount' => $totalgeneratedword + $totalgeneratedChat,
+            'totalContent' => $totalcontent + $totalcontentChat,
             'original' => $original,
         ];
 
