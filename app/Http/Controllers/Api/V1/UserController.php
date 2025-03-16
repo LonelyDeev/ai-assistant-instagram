@@ -43,10 +43,11 @@ class UserController extends Controller
                 'totalcontent' => (int)$totalcontentChat,
             ],
             'original' => $original,
-            'totalCount' => $totalCount,
+
             'totalContent' => $totalContent,
 
             'limit' => (int)$word_limit,
+            'totalCount' => $totalCount,
             'remaining' => $word_limit - $totalCount,
         ];
 
