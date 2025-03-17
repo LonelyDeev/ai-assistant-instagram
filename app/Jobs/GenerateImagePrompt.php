@@ -105,7 +105,7 @@ class GenerateImagePrompt implements ShouldQueue
 
                     $content->image_request_id = $response->json()['request_id'];
                     $content->images_status = "generate";
-                    $content->tokenCount += 2500
+                    $content->tokenCount += 2500;
                     $content->save();
                 }
 
