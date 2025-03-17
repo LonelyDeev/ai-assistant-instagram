@@ -61,7 +61,7 @@ class GenerateContent implements ShouldQueue
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->openAiApi,
             ])->timeout(60)->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'GPT-3.5-turbo',
+                'model' => 'GPT-3.5-plus',
                 'temperature' => 0.8,
                 'messages' => [
                     [
