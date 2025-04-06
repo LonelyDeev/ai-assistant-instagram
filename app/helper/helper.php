@@ -142,42 +142,105 @@ class helper
         $totaltokencount = Content::select('tokenCount')->where('vendor_id', $vendordata->id)->sum('tokenCount');
 
         if ($vendordata->is_available == 2) {
-            return response()->json(['status' => 2, 'message' => trans('messages.account_blocked_by_admin'), 'showclick' => "0", 'plan_message' => '', 'plan_date' => '', 'checklimit' => ''], 200);
+            return response()->json([
+                'status' => 2,
+                'message' => trans('messages.account_blocked_by_admin'),
+                'showclick' => "0",
+                'plan_message' => '',
+                'plan_date' => '',
+                'checklimit' => ''
+            ], 200);
         }
 
         if (!$checkplan) {
-            return response()->json(['status' => 2, 'message' => 'هنوز هیچ پلنی خریداری نکرده اید', 'showclick' => "0", 'plan_message' => '', 'plan_date' => '', 'checklimit' => ''], 200);
+            return response()->json([
+                'status' => 2,
+                'message' => 'هنوز هیچ پلنی خریداری نکرده اید',
+                'showclick' => "0",
+                'plan_message' => '',
+                'plan_date' => '',
+                'checklimit' => ''
+            ], 200);
         }
 
         // for banktransfer
         if ($checkplan->payment_type == 'banktransfer') {
             if ($checkplan->status == 1) {
-                return response()->json(['status' => 2, 'message' => trans('messages.bank_request_pending'), 'showclick' => "0", 'plan_message' => trans('messages.bank_request_pending'), 'plan_date' => '', 'checklimit' => ''], 200);
+                return response()->json([
+                    'status' => 2,
+                    'message' => trans('messages.bank_request_pending'),
+                    'showclick' => "0",
+                    'plan_message' => trans('messages.bank_request_pending'),
+                    'plan_date' => '',
+                    'checklimit' => ''
+                ], 200);
             } elseif ($checkplan->status == 3) {
-                return response()->json(['status' => 2, 'message' => trans('messages.bank_request_rejected'), 'showclick' => "1", 'plan_message' => trans('messages.bank_request_rejected'), 'plan_date' => '', 'checklimit' => ''], 200);
+                return response()->json([
+                    'status' => 2,
+                    'message' => trans('messages.bank_request_rejected'),
+                    'showclick' => "1",
+                    'plan_message' => trans('messages.bank_request_rejected'),
+                    'plan_date' => '',
+                    'checklimit' => ''
+                ], 200);
             }
         }
 
         // for plan expired
         if ($checkplan->expire_date != "") {
             if (date('Y-m-d') > $checkplan->expire_date) {
-                return response()->json(['status' => 2, 'message' => trans('messages.plan_expired'), 'expdate' => $checkplan->expire_date, 'showclick' => "1", 'plan_message' => trans('messages.plan_expired'), 'plan_date' => $checkplan->expire_date, 'checklimit' => ''], 200);
+                return response()->json([
+                    'status' => 2,
+                    'message' => trans('messages.plan_expired'),
+                    'expdate' => $checkplan->expire_date,
+                    'showclick' => "1",
+                    'plan_message' => trans('messages.plan_expired'),
+                    'plan_date' => $checkplan->expire_date,
+                    'purchase_date'=>$checkplan->purchase_date,
+                    'checklimit' => ''
+                ], 200);
             }
         }
 
         // word limit
         $wordcount = self::wordcount($id);
         if ($wordcount <= 0) {
-            return response()->json(['status' => 2, 'message' => trans('messages.vendor_word_limit_message'), 'expdate' => $checkplan->expire_date, 'showclick' => "1", 'plan_message' => trans('messages.plan_expires'), 'plan_date' => $checkplan->expire_date, 'checklimit' => ''], 200);
+            return response()->json([
+                'status' => 2,
+                'message' => trans('messages.vendor_word_limit_message'),
+                'expdate' => $checkplan->expire_date,
+                'showclick' => "1",
+                'plan_message' => trans('messages.plan_expires'),
+                'plan_date' => $checkplan->expire_date,
+                'purchase_date'=>$checkplan->purchase_date,
+                'checklimit' => ''
+            ], 200);
         }
 
         // plan expires or lifetime
         if ($checkplan->expire_date != "") {
-            return response()->json(['status' => 1, 'message' => trans('messages.plan_expires'), 'expdate' => $checkplan->expire_date, 'showclick' => "0", 'plan_message' => trans('messages.plan_expires'), 'plan_date' => $checkplan->expire_date, 'checklimit' => ''], 200);
+            return response()->json([
+                'status' => 1,
+                'message' => trans('messages.plan_expires'),
+                'expdate' => $checkplan->expire_date,
+                'showclick' => "0",
+                'plan_message' => trans('messages.plan_expires'),
+                'plan_date' => $checkplan->expire_date,
+                'purchase_date'=>$checkplan->purchase_date,
+                'checklimit' => ''
+            ], 200);
         } else {
-            return response()->json(['status' => 1, 'message' => trans('messages.lifetime_subscription'), 'expdate' => $checkplan->expire_date, 'showclick' => "0", 'plan_message' => trans('messages.lifetime_subscription'), 'plan_date' => $checkplan->expire_date, 'checklimit' => ''], 200);
+            return response()->json([
+                'status' => 1,
+                'message' => trans('messages.lifetime_subscription'),
+                'expdate' => $checkplan->expire_date,
+                'showclick' => "0",
+                'plan_message' => trans('messages.lifetime_subscription'),
+                'plan_date' => $checkplan->expire_date,
+                'purchase_date'=>$checkplan->purchase_date,
+                'checklimit' => ''
+            ], 200);
         }
-
     }
 
     public static function get_plan_exp_date($duration, $days)
@@ -253,7 +316,6 @@ class helper
                 return response([
                     'message' => 'api_error'
                 ]);
-
             }
         } while (!$success);
         return $response;
@@ -284,8 +346,6 @@ class helper
         curl_setopt($handler, CURLOPT_POSTFIELDS, $input_data);
         curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($handler);
-
-
     }
 
 
@@ -409,7 +469,6 @@ class helper
                 $content->save();
             }
         }
-
     }
 
     public static function Duration($duration)
@@ -440,6 +499,4 @@ class helper
 
         return $duration;
     }
-
-
 }
