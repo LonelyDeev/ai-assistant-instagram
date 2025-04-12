@@ -37,42 +37,44 @@ class PlanController extends Controller
 
         if ($plan->price > 0) {
 
-            if ($plan->price < 1000){
+            if ($plan->price < 1000) {
                 return $this->respondError('مبلغ نمی تواند کمتر از 1000 تومان باشد');
             }
             $expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
+            $original = optional(@helper::checkPlan($request->user()->id))->original;
 
-            if (Transaction::where(['vendor_id'=> $request->user()->id,'plan_id'=>$plan->id])->where('expire_date','<=',$expire_date)->where('status','!=',3)->exists()) {
-                $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
+            if ($original->status != 2) {
+                if (Transaction::where(['vendor_id' => $request->user()->id, 'plan_id' => $plan->id])->where('expire_date', '<=', $expire_date)->where('status', '!=', 3)->exists()) {
+                    $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
 
-                $total_word = Chat::where('user_id', auth()->id())->sum('count');
-
-                if ($total_word <= $word_limit) {
-                    return $this->respondError('یک پلن در لیست شما وجود دارد');
+                    $total_word = Chat::where('user_id', auth()->id())->sum('count');
+                    if ($total_word <= $word_limit) {
+                        return $this->respondError('یک پلن در لیست شما وجود دارد');
+                    }
                 }
-
             }
 
-            if ($request->gateway == "zarinpal") {
-                $buyPlans=$this->buyPlanZarinpalApi($request);
 
-                if ($buyPlans['status']){
-                    return $this->respondSuccess($buyPlans['message'],[
+            if ($request->gateway == "zarinpal") {
+                $buyPlans = $this->buyPlanZarinpalApi($request);
+
+                if ($buyPlans['status']) {
+                    return $this->respondSuccess($buyPlans['message'], [
                         'gateway' => 'zarinpal',
                         'amount' => $plan->price,
-                        'payment_link'=>$buyPlans['payment_link']
+                        'payment_link' => $buyPlans['payment_link']
                     ]);
                 }
             }
 
             if ($request->gateway == "banktransfer") {
                 $request->validate([
-                    'screenshot'=> 'required|file|mimes:jpg,jpeg,png|max:2048',
+                    'screenshot' => 'required|file|mimes:jpg,jpeg,png|max:2048',
                 ]);
 
-                $buyPlans=$this->buyPlanBankTransferApi($request);
+                $buyPlans = $this->buyPlanBankTransferApi($request);
 
-                if ($buyPlans['status']){
+                if ($buyPlans['status']) {
                     return $this->respondSuccess($buyPlans['message']);
                 }
             }
@@ -80,7 +82,6 @@ class PlanController extends Controller
 
 
             return $this->respondError($buyPlans['message']);
-
         } else {
 
             if (Transaction::where('vendor_id', $request->user()->id)->exists()) {
@@ -104,19 +105,16 @@ class PlanController extends Controller
             $transaction->days = $plan->days;
             $transaction->save();
 
-            $word_limit=User::find($request->user()->id)->word_limit;
-            $word_limit=$word_limit+$plan->word_limit;
-            User::where('id', $request->user()->id)->update(['payment_id' => $transaction->id,'plan_id' => $plan->id,'word_limit' => $word_limit, 'purchase_amount' => $plan->price, 'purchase_date' => Carbon::now()->toDateTimeString()]);
+            $word_limit = User::find($request->user()->id)->word_limit;
+            $word_limit = $word_limit + $plan->word_limit;
+            User::where('id', $request->user()->id)->update(['payment_id' => $transaction->id, 'plan_id' => $plan->id, 'word_limit' => $word_limit, 'purchase_amount' => $plan->price, 'purchase_date' => Carbon::now()->toDateTimeString()]);
 
 
-            return  $this->respondSuccess($plan->name.' با موفقیت برای شما فعال شد');
-
-
+            return  $this->respondSuccess($plan->name . ' با موفقیت برای شما فعال شد');
         }
 
 
         return $this->respondError('Invalid gateway');
-
     }
 
     private function buyPlanBankTransferApi(Request $request)
@@ -125,9 +123,9 @@ class PlanController extends Controller
         try {
             $plan = PricingPlan::where('id', $request->plan_id)->first();
 
-            $screenshot="";
+            $screenshot = "";
             if ($request->hasFile('screenshot')) {
-                $imagePath = $this->uploadImage($request,'screenshot');
+                $imagePath = $this->uploadImage($request, 'screenshot');
                 $screenshot = $imagePath;
             }
 
@@ -139,7 +137,7 @@ class PlanController extends Controller
             $transaction->payment_type = "banktransfer";
             $transaction->payment_id = null;
             $transaction->amount = $plan->price;
-            $transaction->tools_limit =$plan->tools_limit;
+            $transaction->tools_limit = $plan->tools_limit;
             $transaction->word_limit = $plan->word_limit;
             $transaction->status = 1;
             $transaction->purchase_date = date("Y-m-d h:i:sa");
@@ -159,14 +157,12 @@ class PlanController extends Controller
                 'status' => true,
                 'message' => 'با موفقیت ثبت شد و پس از برسی، پلن شما فعال می شود.',
             ];
-
         } catch (\Throwable $th) {
             return [
                 'status' => false,
                 'message' => $th->getMessage(),
             ];
         }
-
     }
 
     private function buyPlanZarinpalApi(Request $request)
@@ -213,14 +209,12 @@ class PlanController extends Controller
                 'message' => 'لینک پرداخت با موفقیت ایجاد شد.',
                 'payment_link' => $paymentLink,
             ];
-
         } catch (\Exception $e) {
             return [
                 'status' => false,
                 'message' => $e->getMessage(),
             ];
         }
-
     }
 
     public function zarinpalVerifyApi(Request $request)
@@ -248,8 +242,6 @@ class PlanController extends Controller
             $transaction->save();
             return $this->respondError($exception->getMessage());
         }
-
-
     }
 
 
@@ -285,7 +277,7 @@ class PlanController extends Controller
 
     public function getBankInfo()
     {
-        $paymentmethod = Payment::where(['is_available'=> '1','payment_name'=>'BankTransfer'])->first();
+        $paymentmethod = Payment::where(['is_available' => '1', 'payment_name' => 'BankTransfer'])->first();
         return json_encode([
             'bankName' => $paymentmethod->bank_name,
             'accountName' => $paymentmethod->account_holder_name,
