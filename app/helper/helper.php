@@ -286,12 +286,12 @@ class helper
 
         if (!empty($checkplan)) {
             //$wordlimit = $checkplan->word_limit;
-            $wordlimit = User::find($id)->word_limit;
-
+           // $wordlimit = User::find($id)->word_limit;
+            $word_limit = Transaction::where('vendor_id', $id)->where('status',2)->sum('word_limit');
             $totalwordcount = Content::select('count')->where('vendor_id', $id)->sum('count');
             $totaltokencount = Content::select('tokenCount')->where('vendor_id', $id)->sum('tokenCount');
 
-            $count = $wordlimit - $totaltokencount;
+            $count = $word_limit - $totaltokencount;
             if ($count < 0) {
                 $count = 0;
             }
