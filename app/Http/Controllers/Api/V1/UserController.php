@@ -29,7 +29,7 @@ class UserController extends Controller
 
         $original = optional(@helper::checkPlan($request->user()->id))->original;
 
-        $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
+        $word_limit = Transaction::where('vendor_id', auth()->id())->where('status',2)->sum('word_limit');
 
         $totalCount = (int)$totalgeneratedword + (int)$totalgeneratedChat;
         $totalContent = (int)$totalcontent + (int)$totalcontentChat;
