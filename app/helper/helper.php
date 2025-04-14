@@ -144,6 +144,7 @@ class helper
         if ($vendordata->is_available == 2) {
             return response()->json([
                 'status' => 2,
+                'TitleStatus' => "blocked",
                 'message' => trans('messages.account_blocked_by_admin'),
                 'showclick' => "0",
                 'plan_message' => '',
@@ -155,6 +156,7 @@ class helper
         if (!$checkplan) {
             return response()->json([
                 'status' => 2,
+                'TitleStatus' => "notBuy",
                 'message' => 'هنوز هیچ پلنی خریداری نکرده اید',
                 'showclick' => "0",
                 'plan_message' => '',
@@ -168,6 +170,7 @@ class helper
             if ($checkplan->status == 1) {
                 return response()->json([
                     'status' => 2,
+                    'TitleStatus' => "pending",
                     'message' => trans('messages.bank_request_pending'),
                     'showclick' => "0",
                     'plan_message' => trans('messages.bank_request_pending'),
@@ -177,6 +180,7 @@ class helper
             } elseif ($checkplan->status == 3) {
                 return response()->json([
                     'status' => 2,
+                    'TitleStatus' => "notConfirmed",
                     'message' => trans('messages.bank_request_rejected'),
                     'showclick' => "1",
                     'plan_message' => trans('messages.bank_request_rejected'),
