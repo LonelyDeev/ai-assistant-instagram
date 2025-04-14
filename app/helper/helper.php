@@ -195,6 +195,7 @@ class helper
             if (date('Y-m-d') > $checkplan->expire_date) {
                 return response()->json([
                     'status' => 2,
+                    'TitleStatus' => "plan_expired",
                     'message' => trans('messages.plan_expired'),
                     'expdate' => $checkplan->expire_date,
                     'showclick' => "1",
@@ -211,6 +212,7 @@ class helper
         if ($wordcount <= 0) {
             return response()->json([
                 'status' => 2,
+                'TitleStatus' => "limit",
                 'message' => trans('messages.vendor_word_limit_message'),
                 'expdate' => $checkplan->expire_date,
                 'showclick' => "1",
@@ -225,6 +227,7 @@ class helper
         if ($checkplan->expire_date != "") {
             return response()->json([
                 'status' => 1,
+                'TitleStatus' => "plan_expires",
                 'message' => trans('messages.plan_expires'),
                 'expdate' => $checkplan->expire_date,
                 'showclick' => "0",
@@ -236,6 +239,7 @@ class helper
         } else {
             return response()->json([
                 'status' => 1,
+                'TitleStatus' => "ok",
                 'message' => trans('messages.lifetime_subscription'),
                 'expdate' => $checkplan->expire_date,
                 'showclick' => "0",
