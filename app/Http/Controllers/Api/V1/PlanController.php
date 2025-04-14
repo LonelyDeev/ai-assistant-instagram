@@ -43,7 +43,7 @@ class PlanController extends Controller
             $expire_date = helper::get_plan_exp_date($plan->duration, $plan->days);
             $original = optional(@helper::checkPlan($request->user()->id))->original;
 
-            if ($original['status'] != 2) {
+            if ($original['status'] != 2 or $original['TitleStatus']=="pending") {
                 if (Transaction::where(['vendor_id' => $request->user()->id, 'plan_id' => $plan->id])->where('expire_date', '<=', $expire_date)->where('status', '!=', 3)->exists()) {
                     $word_limit = Transaction::where('vendor_id', auth()->id())->sum('word_limit');
 
